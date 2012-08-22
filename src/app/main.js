@@ -1,57 +1,36 @@
 /**
- * This file is the application's main JavaScript file. It is listed as a dependency in run.js and will automatically
- * load when run.js loads.
+ * This file is used to reconfigure parts of the loader at runtime for this application. We've put this extra
+ * configuration in a separate file, instead of adding it directly to index.html, because it contains options that
+ * can be shared if the application is run on both the client and the server.
  *
- * Because this file has the special filename `main.js`, and because we've registered the `app` package in run.js,
- * whatever object this module returns can be loaded by other files simply by requiring `app` (instead of `app/main`).
- *
- * Our first dependency is to the `dojo/has` module, which allows us to conditionally execute code based on
- * configuration settings or environmental information. Unlike a normal conditional, these branches can be compiled
- * away by the build system; see `staticHasFeatures` in app.profile.js for more information.
- *
- * Our second dependency is to the special module `require`; this allows us to make additional require calls using
- * module IDs relative to this module within the body of the define callback.
- *
- * In all cases, whatever function is passed to define() is only invoked once, and the returned value is cached.
- *
- * More information about everything described about the loader throughout this file can be found at
- * <http://dojotoolkit.org/reference-guide/loader/amd.html>.
+ * If you aren't planning on running your app on both the client and the server, you could easily move this
+ * configuration into index.html (as a dojoConfig object) if it makes your life easier.
  */
-define([ 'dojo/has', 'require' ], function (has, require) {
-	var app = {};
+require({
+	// The base path for all packages and modules. If you don't provide this, baseUrl defaults to the directory
+	// that contains dojo.js. Since all packages are in the root, we just leave it blank. (If you change this, you
+	// will also need to update `app.profile.js`).
+	baseUrl: '',
 
-	/**
-	 * This main.js file conditionally executes different code depending upon the host environment it is loaded in.
-	 * This is an increasingly common pattern when dealing with applications that run in different environments that
-	 * require different functionality (i.e. client/server or desktop/tablet/phone).
-	 */
-	if (has('host-browser')) {
-		/*
-		 * This require call's first dependency, `./Dialog`, uses a relative module identifier; you should use this
-		 * type of notation for dependencies *within* a package in order to ensure the package is fully portable. It
-		 * works like a path, where `./` refers to the current directory and `../` refers to the parent directory. If
-		 * you are referring to a module in a *different* package (like `dojo` or `dijit`), you should *not* use a
-		 * relative module identifier.
-		 *
-		 * The second dependency is a plugin dependency; in this case, it is a dependency on the special functionality
-		 * of the `dojo/domReady` plugin, which simply waits until the DOM is ready before resolving.
-		 * The `!` after the module name indicates you want to use special plugin functionality; if you were to
-		 * require just `dojo/domReady`, it would load that module just like any other module, without the special
-		 * plugin functionality.
-		 */
-		require([ './Dialog', 'dojo/domReady!' ], function (Dialog) {
-			app.dialog = new Dialog().placeAt(document.body);
-
-			// It is important to remember to always call startup on widgets after you have added them to the DOM.
-			// It will not hurt if you do it twice, but things will often not work right if you forget to do it.
-			app.dialog.startup();
-
-			// And now we just show the dialog to demonstrate that, yes, the example app has loaded successfully.
-			app.dialog.show();
-		});
-	}
-	else {
-		// TODO: Eventually, the Boilerplate will actually have a useful server implementation here :)
-		console.log('Hello from the server!');
-	}
+	// A list of packages to register. Strictly speaking, you do not need to register any packages,
+	// but you can't require "app" and get app/main.js if you do not register the "app" package (the loader will look
+	// for a module at <baseUrl>/app.js instead). Unregistered packages also cannot use the `map` feature, which
+	// might be important to you if you need to relocate dependencies. TL;DR, register all your packages all the time:
+	// it will make your life easier.
+	packages: [
+		// If you are registering a package that has an identical name and location, you can just pass a string
+		// instead, and it will configure it using that string for both the "name" and "location" properties. Handy!
+		{ name: 'dojo', location: 'lib/dojo', destLocation: 'lib/dojo' },
+		{ name: 'dijit', location: 'lib/dijit', destLocation: 'lib/dijit' },
+		{ name: 'dojox', location: 'lib/dojox', destLocation: 'lib/dojox' },
+		{ name: 'dgrid', location: 'lib/dgrid', destLocation: 'lib/dgrid' },
+		{ name: 'put-selector', location: 'lib/put-selector', destLocation: 'lib/put-selector' },
+		{ name: 'xstyle', location: 'lib/xstyle', destLocation: 'lib/xstyle' },
+		{ name: 'app', location: 'app', destLocation: 'app' },
+		{ name: 'client', location: 'client', destLocation: 'client' },
+		{ name: 'server', location: 'server', destLocation: 'server' }
+	]
+// Require `app`. This loads the main application module, `app/main`, since we registered the `app` package above.
+}, [ 'dojo/has', 'require' ], function (has, require) {
+	require([has('host-browser') ? 'client' : 'server']);
 });

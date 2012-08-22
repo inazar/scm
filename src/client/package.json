@@ -1,0 +1,8 @@
+{
+    "name": "client",
+    "version": "0.1",
+    "author": "Nazar Ivanenko",
+    "description": "SCM client side code",
+    "main": "main",
+    "dojoBuild": "package.js"
+}

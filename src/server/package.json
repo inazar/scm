@@ -1,0 +1,8 @@
+{
+    "name": "server",
+    "version": "0.1",
+    "author": "Nazar Ivanenko",
+    "description": "SCM server side code",
+    "main": "main",
+    "dojoBuild": "package.js"
+}

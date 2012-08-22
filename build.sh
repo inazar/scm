@@ -9,13 +9,13 @@ BASEDIR=$(cd $(dirname $0) && pwd)
 SRCDIR="$BASEDIR/src"
 
 # Directory containing dojo build utilities
-TOOLSDIR="$SRCDIR/util/buildscripts"
+TOOLSDIR="$SRCDIR/lib/util/buildscripts"
 
 # Destination directory for built code
 DISTDIR="$BASEDIR/dist"
 
 # Module ID of the main application package loader configuration
-LOADERMID="app/run"
+LOADERMID="app/main"
 
 # Main application package loader configuration
 LOADERCONF="$SRCDIR/$LOADERMID.js"
@@ -58,5 +58,8 @@ perl -pe "
   s/isDebug: *1/deps:['$LOADERMID']/;        # Remove isDebug, add deps
   s/<script src=\"$LOADERMID.*?\/script>//;  # Remove script app/run
   s/\s+/ /g;                                 # Collapse white-space" > "$DISTDIR/index.html"
+
+find "$DISTDIR" -name *.js.uncompressed.js -delete
+find "$DISTDIR" -name *.js.consoleStripped.js -delete
 
 echo "Build complete"

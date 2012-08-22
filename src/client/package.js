@@ -36,7 +36,7 @@ var profile = {
 		// the application.
 		miniExclude: function (filename, mid) {
 			return mid in {
-				'app/package': 1
+				'client/package': 1
 			};
 		}
 	}

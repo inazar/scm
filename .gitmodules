@@ -1,15 +1,24 @@
-[submodule "src/dojo"]
-	path = src/dojo
+[submodule "src/lib/dojo"]
+	path = src/lib/dojo
 	url = https://github.com/dojo/dojo.git
-[submodule "src/dijit"]
-	path = src/dijit
+[submodule "src/lib/dijit"]
+	path = src/lib/dijit
 	url = https://github.com/dojo/dijit.git
-[submodule "src/dojox"]
-	path = src/dojox
+[submodule "src/lib/dojox"]
+	path = src/lib/dojox
 	url = https://github.com/dojo/dojox.git
-[submodule "src/dgrid"]
-	path = src/dgrid
+[submodule "src/lib/dgrid"]
+	path = src/lib/dgrid
 	url = https://github.com/SitePen/dgrid.git
-[submodule "src/util"]
-	path = src/util
+[submodule "src/lib/util"]
+	path = src/lib/util
 	url = https://github.com/dojo/util.git
+[submodule "src/lib/put-selector"]
+	path = src/lib/put-selector
+	url = https://github.com/kriszyp/put-selector.git
+[submodule "src/lib/xstyle"]
+	path = src/lib/xstyle
+	url = https://github.com/kriszyp/xstyle.git
+[submodule "lib/dojo/dojo"]
+	path = lib/dojo/dojo
+	url = https://github.com/dojo/dojo.git

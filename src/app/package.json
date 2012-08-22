@@ -1,12 +1,15 @@
 {
 	"name": "scm",
 	"version": "1.0",
-	"main": "main",
+    "author": "Nazar Ivanenko",
+	"main": "./main",
 	"dependencies": {
 		"dojo": "1.8.0",
 		"dijit": "1.8.0",
 		"dojox": "1.8.0",
 		"dgrid": "0.3.1",
+		"put-selector": "0.3.0",
+		"xstyle": "0.0.5",
 		"util": "1.8.0"
 	},
 	"description": "SCM application",
