@@ -7,6 +7,9 @@
 [submodule "src/dojox"]
 	path = src/dojox
 	url = https://github.com/dojo/dojox.git
+[submodule "src/dgrid"]
+	path = src/dgrid
+	url = https://github.com/SitePen/dgrid.git
 [submodule "src/util"]
 	path = src/util
 	url = https://github.com/dojo/util.git
