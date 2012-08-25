@@ -1,0 +1,13 @@
+{
+	"name": "scm",
+	"description": "Supply chain management for eCommerce",
+	"author": "Nazar Ivanenko <nivanenko@gmail.com>",
+	"version": "0.0.1",
+	"dependencies": {
+		"express": "3.x.x",
+		"ejs": "",
+		"mongoose": "3.x.x",
+		"serializer": ">=0.0.2",
+		"mail": ""
+	}
+}
