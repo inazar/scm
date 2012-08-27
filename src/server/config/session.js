@@ -1,10 +1,10 @@
 // module:
 //		server/config/session
 
-define(["dojo/node!serializer"], function(serializer) {
+define(["../node/utils"], function(util) {
 	return {
-		secret: serializer.randomString(256),
+		secret: util.uid(32),
 		ttl: 600000,
-		reap: 6000
+		reap: 60000
 	};
 });

@@ -7,9 +7,13 @@ define([
 	"dojo/node!ejs",
 	"dojo/node!express/lib/response",
 	"./node/session",
+	"dojo/node!passport",
+	"./auth/strategies",
+	"./auth/routes",
+	"dojo/node!connect-ensure-login",
 	"./config/session",
-	"app/config/app"
-], function(declare, lang, util, path, express, ejs, Response, SessionStore, sessionConfig, appConfig) {
+	"./config/env"
+], function(declare, lang, util, path, express, ejs, Response, SessionStore, passport, strategies, authRoutes, login, sessionConfig, env) {
 	// module:
 	//		server/node/app
 
@@ -24,9 +28,10 @@ define([
 	//		7) Set up request logging (skip statics ???)
 	//		8) Set up sessions
 	//		9) Initialize locals for template engine
-	//		10) Set up router for server applications
+	//		10) Initialize passport
+	//		11) Set up router for server applications
+	//		12) Set up authentication strategies
 	//		11) Set up routes for unathorized access
-	//		12) Set up authentication
 	//		13) Set up access verification
 	//		14) Set up secure routes
 	//		15) Set up error handling for xhr requests
@@ -68,7 +73,7 @@ define([
 
 	app.configure(function() {
 		// 4) Set up template engine
-//		app.set('views', __dirname + '/views');
+		app.set('views', path.join(env.root, 'server', 'views'));
 		app.set('view engine', 'ejs');
 		// support ejs with layout
 		app.engine('ejs', function(view, options, callback) {
@@ -87,7 +92,7 @@ define([
 		app.use(express.favicon('path'));   // TODO: create favicon
 		// expose only few folders
 		['app', 'client', 'lib'].forEach(function(p) {
-//			app.use('/' + p, express.static(path.join(__dirname, '..', '..', p)));
+			app.use('/' + p, express.static(path.join(env.root, p)));
 		});
 
 		// 7) Set up request logging (skip statics ???)
@@ -106,11 +111,17 @@ define([
 			res.locals({});
 			next();
 		});
-		// 10) Set up router for server applications
+		// 10) Initialize passport
+		app.use(passport.initialize());
+		app.use(passport.session());
+		// 11) Set up router for server applications
 		app.use(app.router);
+		// 12) Set up authentication strategies
+		strategies(passport);
 		// 11) Set up routes for unathorized access
-		// 12) Set up authentication
+		authRoutes(app, passport);
 		// 13) Set up access verification
+		app.use(login.ensureLoggedIn({ redirectTo: env.login }));
 		// 14) Set up secure routes
 		// 15) Set up error handling for xhr requests
 		app.use(function(err, req, res, next) {
@@ -129,7 +140,7 @@ define([
 		app.use(express.errorHandler());
 	});
 	// 17) Start server
-	app.listen(appConfig.port, function() {
-		util.log("Express server listening on port "+appConfig.port+" in "+app.settings.env+" mode");
+	app.listen(env.port, function() {
+		util.log("Express server listening on port "+env.port+" in "+app.settings.env+" mode");
 	});
 });

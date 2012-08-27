@@ -13,7 +13,7 @@ define({
 
 	// db: String
 	//		The name of application database
-	db: 'scm',
+	db: 'scmdb',
 
 	// port: Number
 	//		The port listened by database engine

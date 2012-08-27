@@ -1,10 +1,16 @@
-define(["dojo/node!util", "dojo/_base/lang", "dojo/node!express", "./mongo"], function(util, lang, express, mongo){
+define([
+	"dojo/node!util",
+	"dojo/_base/lang",
+	"dojo/node!express",
+	"./mongo",
+	"./mongoose!Schema"
+], function(util, lang, express, mongo, Schema){
 	// module:
 	//		server/node/session
 
 	// summary:
 	//		Implement persistent session storage
-	var Session = mongo.model('session', new mongo.Schema({
+	var Session = mongo.model('session', new Schema({
 			_sid: { type: String, index: { unique: true } },
 			access: { type: Number },
 			ttl: { type : Number },
@@ -45,7 +51,7 @@ define(["dojo/node!util", "dojo/_base/lang", "dojo/node!express", "./mongo"], fu
 				if (session) {
 					session.data = sess;
 				} else {
-					session = new ExpressSession({_sid: sid, data: sess});
+					session = new Session({_sid: sid, data: sess});
 				}
 				session.access = (new Date()).getTime();
 				session.save(callback);
@@ -62,16 +68,6 @@ define(["dojo/node!util", "dojo/_base/lang", "dojo/node!express", "./mongo"], fu
 
 	SessionStore.prototype.destroy = function(sid, callback) {
 		Session.remove({ _sid: sid }, callback);
-	};
-
-	SessionStore.prototype.createSession = function(req, sess){
-		var expires = sess.cookie ? sess.cookie.expires : null,
-			original = sess.cookie ? sess.cookie.originalMaxAge : null;
-		sess.cookie = new Cookie(sess.cookie);
-		if ('string' == typeof expires) sess.cookie.expires = new Date(expires);
-		sess.cookie.originalMaxAge = original;
-		req.session = new ExpressSession(req, sess);
-		return req.session;
 	};
 
 	return SessionStore;
