@@ -21,7 +21,7 @@ define([
 		 * Anytime a request is made to authorize an application, we must ensure that
 		 * a user is logged in before asking them to approve the request.
 		 */
-		passport.use(new local.Strategy(User.checkPassword));
+		passport.use(new local.Strategy({usernameField: 'email'}, User.checkPassword));
 		passport.serializeUser(function(user, next) { next(null, user.get('_id')); });
 		passport.deserializeUser(function(id, next) { User.findById(id, next); });
 

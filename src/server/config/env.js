@@ -26,6 +26,10 @@ define(["dojo/node!path"], function(path) {
 		//		Root URL
 		rootUrl: '/',
 
+		// customer: String
+		//		Customer selection URL
+		customer: '/customer',
+
 		// login: String
 		//		Login URL
 		login: '/login',

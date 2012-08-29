@@ -12,8 +12,9 @@ define([
 	"./auth/routes",
 	"dojo/node!connect-ensure-login",
 	"./config/session",
+	"./node/restify",
 	"./config/env"
-], function(declare, lang, util, path, express, ejs, Response, SessionStore, passport, strategies, authRoutes, login, sessionConfig, env) {
+], function(declare, lang, util, path, express, ejs, Response, SessionStore, passport, strategies, authRoutes, login, sessionConfig, restify, env) {
 	// module:
 	//		server/node/app
 
@@ -123,24 +124,30 @@ define([
 		// 13) Set up access verification
 		app.use(login.ensureLoggedIn({ redirectTo: env.login }));
 		// 14) Set up secure routes
-		// 15) Set up error handling for xhr requests
-		app.use(function(err, req, res, next) {
-			if (req.xhr) res.send(err.status ? err.status : 500, { name: err.name, message: err.message });
-			else next(err);
-		});
-	});
-	// 16) Set up error handling for page request
-	app.configure('development', function() {
-		app.use(express.errorHandler({
-			dumpExceptions: true,
-			showStack: true
-		}));
-	});
-	app.configure('production', function() {
-		app.use(express.errorHandler());
-	});
-	// 17) Start server
-	app.listen(env.port, function() {
-		util.log("Express server listening on port "+env.port+" in "+app.settings.env+" mode");
+		restify(app, path.join(env.root, 'server', 'routes')).then(
+			function (routes) {
+				debugger;
+				console.log(routes);
+				// 15) Set up error handling for xhr requests
+				app.use(function(err, req, res, next) {
+					if (req.xhr) res.send(err.status ? err.status : 500, { name: err.name, message: err.message });
+					else next(err);
+				});
+				// 16) Set up error handling for page request
+				app.configure('development', function() {
+					app.use(express.errorHandler({
+						dumpExceptions: true,
+						showStack: true
+					}));
+				});
+				app.configure('production', function() {
+					app.use(express.errorHandler());
+				});
+				// 17) Start server
+				app.listen(env.port, function() {
+					util.log("Express server listening on port "+env.port+" in "+app.settings.env+" mode");
+				});
+			}, function (err) { util.error("Error loading routes: "+err.message); }
+		);
 	});
 });
