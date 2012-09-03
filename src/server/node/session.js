@@ -62,7 +62,7 @@ define([
 	SessionStore.prototype.get = function(sid, callback) {
 		Session.findOne({ _sid: sid }, function(err, sess) {
 			if (err) callback(err);
-			else callback(null, (sess && sess.data) || {});
+			else callback(null, (sess && sess.data) || null);
 		});
 	};
 

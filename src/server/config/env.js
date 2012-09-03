@@ -1,14 +1,15 @@
 // module:
 //		server/config/env
 
-define(["dojo/node!path"], function(path) {
+define(["dojo/node!path", "app/config"], function(path, config) {
+	var urls = config.urls, env = process.env;
 	return {
 		// summary:
 		//		This is the server environment configuration object.
 
 		// dotcloud: Boolean
 		//		Weather server is run on dotcloud service
-		dotcloud: !!process.env['DOTCLOUD_PROJECT'],
+		dotcloud: !!env['DOTCLOUD_PROJECT'],
 
 		// root: String
 		//		Root path
@@ -16,39 +17,43 @@ define(["dojo/node!path"], function(path) {
 
 		// host: String
 		//		Host listened by application
-		host: process.env['DOTCLOUD_NODEJS_HTTP_HOST'] || 'localhost:3050',
+		host: env['DOTCLOUD_NODEJS_HTTP_HOST'] || 'localhost:3050',
 
 		// port: Number
 		//		Port listened by application
-		port: process.env['PORT_WWW'] || 3050,
+		port: env['PORT_WWW'] || 3050,
 
 		// rootUrl: String
 		//		Root URL
-		rootUrl: '/',
+		rootUrl: urls.base,
 
-		// customer: String
-		//		Customer selection URL
-		customer: '/customer',
+		// register: String
+		//		Register URL
+		register: urls.register,
 
 		// login: String
 		//		Login URL
-		login: '/login',
+		login: urls.login,
 
 		// logout: String
 		//		Logout URL
-		logout: '/logout',
+		logout: urls.logout,
 
 		// authorize: String
 		//		Authorize URL
-		authorize: '/authorize',
+		authorize: urls.authorize,
 
 		// decision: String
 		//		Decision URL
-		decision: '/authorize/grant',
+		decision: urls.decision,
 
 		// token: String
 		//		Token URL
-		token: '/oauth/token'
+		token: urls.token,
+
+		// loginFailures: Number
+		//		Maximum number of failures before user is blocked
+		loginFailures: 3
 
 	};
 });

@@ -1,4 +1,4 @@
-define(["dojo/_base/lang", "dojo/node!mongoose", "./mongo"], function (lang, mongoose, mongo) {
+define(["dojo/node!mongoose"], function (mongoose) {
 	// summary:
 	//		This AMD plugin module allows loading mongoose classes
 	//	|	require("server/node/mongoose!ObjectId", function(ObjectId) {});

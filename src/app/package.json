@@ -1,8 +1,8 @@
 {
-	"name": "scm",
+	"name": "app",
 	"version": "1.0",
     "author": "Nazar Ivanenko",
-	"main": "./main",
+	"main": "main",
 	"dependencies": {
 		"dojo": "1.8.0",
 		"dijit": "1.8.0",

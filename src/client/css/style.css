@@ -1,0 +1,63 @@
+/**
+ * If you are developing a project that makes use of Dijit widgets, you will probably want to include the two files
+ * below; otherwise, you can remove them. When building for release, Dojo will automatically combine all of your
+ * @imported CSS files into a single file.
+ *
+ * It is highly, highly recommended that you develop your CSS using Stylus: http://learnboost.github.com/stylus/.
+ */
+
+@import '../../lib/dojo/resources/dojo.css';
+@import '../../lib/dijit/themes/claro/claro.css';
+
+html, body {
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    padding: 0;
+}
+
+#appLayout {
+    height: 100%;
+}
+.center {
+	margin: 0 auto;
+}
+.vspan {
+	height: 100%;
+}
+
+/* Status pannel */
+.statusPanel {
+	height: 16px;
+	padding: 4px!important;
+}
+
+.statusOk,
+.statusWarning,
+.statusError,
+.statusLoading {
+	background-image: url('img/status.png');
+	width: 16px;
+	height: 16px;
+	display: inline-block;
+}
+.statusOk { background-position: 0; }
+.statusWarning { background-position: -16px; }
+.statusError { background-position: -32px; }
+
+.statusLoading { background-image: url('img/loadingAnimation.gif'); }
+
+.errorName, .errorMessage, .errorInfo {
+	padding-top: 2px;
+	vertical-align: top;
+	font-size: 12px;
+	display: inline-block;
+	color: #555;
+}
+.errorName {
+	padding-left: 0.5em;
+	font-weight: bold;
+}
+.errorInfo {
+	color: #ddd;
+}

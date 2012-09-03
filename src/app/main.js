@@ -11,6 +11,15 @@ require({
 	// that contains dojo.js. Since all packages are in the root, we just leave it blank. (If you change this, you
 	// will also need to update `app.profile.js`).
 	baseUrl: '',
+	// An array of resource paths which should load immediately once Dojo has loaded
+	deps: [],
+	// Amount of time to wait before signaling load timeout for a module, 0 = wait forever
+	waitSeconds: 5,
+	// When isDebug is “false” (default) some additional debugging information like warning
+	// when using deprecated or experimental code are not printed out.
+	isDebug: true,
+	async: true,
+	ioPublish: true,
 
 	// A list of packages to register. Strictly speaking, you do not need to register any packages,
 	// but you can't require "app" and get app/main.js if you do not register the "app" package (the loader will look
@@ -26,11 +35,22 @@ require({
 		{ name: 'dgrid', location: 'lib/dgrid', destLocation: 'lib/dgrid' },
 		{ name: 'put-selector', location: 'lib/put-selector', destLocation: 'lib/put-selector' },
 		{ name: 'xstyle', location: 'lib/xstyle', destLocation: 'lib/xstyle' },
-		{ name: 'app', location: 'app', destLocation: 'app' },
-		{ name: 'client', location: 'client', destLocation: 'client' },
-		{ name: 'server', location: 'server', destLocation: 'server' }
+		'app', 'server', 'client'
 	]
 // Require `app`. This loads the main application module, `app/main`, since we registered the `app` package above.
-}, [ 'dojo/has', 'require' ], function (has, require) {
-	require([has('host-browser') ? 'client' : 'server']);
+}, [ 'dojo/has', 'require', 'dojo/_base/config', 'app/config' ], function (has, require, config, appConfig) {
+	if (!has('host-browser')) return require({ ioPublish: false }, ['server']);
+	require(['dojo/domReady!'], function() {
+		// now we run client
+		switch (window.location.pathname) {
+			case appConfig.urls.register:
+				require(['app/handlers/register']);
+				break;
+			case appConfig.urls.login:
+				require(['app/handlers/login']);
+				break;
+			default:
+				break;
+		}
+	});
 });

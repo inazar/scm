@@ -3,33 +3,16 @@
 <head>
     <meta charset="utf-8">
     <title></title>
-    <!-- Application-specific CSS should be stored in your application’s package to ensure portability and to allow
-         the build system to combine & minify it. -->
-    <link rel="stylesheet" href="/app/css/app.css">
     <script>
         var dojoConfig = {
-            isDebug: true,
-            ioPublish: <% if (typeof user !== "undefined") { %>true<% } else { %>false <% } %>,
-            baseUrl: '../',
-            async: true,
-            locale: <% if (typeof locale !== "undefined") { %><%- JSON.stringify(locale) %><% } else { %>'ru-ru' <% } %>,
-            packages: [ 'dojo', 'dijit', 'dojox', 'app' ]
-        };
-    </script>
-    <script>
-        var app = {
-            name: <% if (typeof appName !== "undefined") { %><%- JSON.stringify(__(appName)) %><% } else { %>''<% } %>,
-            data: <% if (typeof data !== "undefined") { %><%- JSON.stringify(data) %><% } else { %>{}<% } %>,
-            user: <% if (typeof user !== "undefined" && user._id) { %><%- JSON.stringify(user._id) %><% } else { %>null<% } %>,
-            locale: <% if (typeof locale !== "undefined") { %><%- JSON.stringify(locale) %><% } else { %>null<% } %>,
-            locales: <% if (typeof locales !== "undefined") { %><%- JSON.stringify(locales) %><% } else { %>[]<% } %>
+            locale: <% if (typeof locale !== "undefined") { %><%- JSON.stringify(locale) %><% } else { %>'ru-ru'<% } %>,
+            user:  <% if (typeof user !== "undefined") { %><%- JSON.stringify(user) %><% } else { %>null<% } %>,
+            client: <% if (typeof client !== "undefined") { %><%- JSON.stringify(client) %><% } else { %>null<% } %>
         };
     </script>
 </head>
 <body class="claro">
-    <div id="appLayout" class="layout"</div>
-    <%- body %>
-
+    <div id="appLayout"><%- body %></div>
     <!-- dojo.js is an AMD-compliant loader script. It accepts configuration either from a data-dojo-config attribute,
          as shown here, from a global dojoConfig object (which must be defined *before* dojo.js is loaded), or from
          a global require object.
@@ -39,11 +22,11 @@
 
          The remainder of Dojo configuration, as well as our application’s instantiation, occurs within
          app/run.js. -->
-    <script src="/dojo/dojo.js" defer></script>
+    <script src="/lib/dojo/dojo.js" defer></script>
 
     <!-- Load the loader configuration script. Note that this module ID is hard-coded in build.sh in order to provide
          an optimised build that loads as few as one script for the entire application. If you change the name or
          location of this module, you will need to update build.sh too. -->
-    <script src="/app/run.js" defer></script>
+    <script src="/app/main.js" defer></script>
 </body>
 </html>

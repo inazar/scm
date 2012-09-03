@@ -3,8 +3,9 @@
 define([
 	"../node/mongo",
 	"../node/mongoose!Schema",
-	"../node/mongoose!ObjectId"
-], function (mongo, Schema, ObjectId) {
+	"../node/mongoose!ObjectId",
+	"../config/env"
+], function (mongo, Schema, ObjectId, env) {
 
 	// summary:
 	//		User database object
@@ -13,10 +14,10 @@ define([
 		name: { type: String },					 			// User's name
 		confirmed: { type: Boolean },						// Weather user confirmed email
 		secret: { type: String, select: false },			// Password hash
-		blocked: { type: Boolean, default: false },			// Wheather user is blocked
-		failures: { type: Number, default: 0 },				// Failed login attempts
-		clients: [{ type: ObjectId, ref: 'customer' }],		// reference to customers
-		client: { type: ObjectId, ref: 'customer', default: null },	// reference to las used customer
+		blocked: { type: Boolean, 'default': false },			// Wheather user is blocked
+		failures: { type: Number, 'default': 0 },				// Failed login attempts
+		clients: [{ type: ObjectId, ref: 'client' }],		// reference to customers
+		client: { type: ObjectId, ref: 'client', 'default': null }	// reference to last used customer
 	});
 
 	UserSchema.statics.checkPassword = function (email, pwd, callback) {
@@ -32,7 +33,8 @@ define([
 		if (!callback) return;
 		User.findOne({email: email, confirmed: true}, '+secret', function(err, user) {
 			if (err) return callback(err);
-			if (!user || user.blocked) return callback(null, false);
+			if (!user) return callback(null, false, "user unknown");
+			if (user.blocked) return callback(null, false, "user blocked");
 			if (user.secret === pwd) {
 				if (user.failures) {
 					user.failures = 0;
@@ -41,12 +43,12 @@ define([
 					});
 				} else callback(null, user);
 			} else {
-				if (user.failures === (loginFailures - 1)) {
+				if (user.failures === (env.loginFailures - 1)) {
 					user.failures = 0;
 					user.blocked = true;
 				} else user.failures += 1;
 				user.save(function(err) {
-					callback(err, false);
+					callback(err, false, "wrong password");
 				});
 			}
 		});

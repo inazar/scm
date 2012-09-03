@@ -17,7 +17,7 @@ define([
 	TokenSchema.statics.checkScope = function (token, callback) {
 		// summary:
 		//		Get scope related to the token
-		// tken: String
+		// token: String
 		//		Access token
 		// callback: Function
 		//		Callback receives Error object or null, false if no token found or

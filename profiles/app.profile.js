@@ -63,12 +63,11 @@ var profile = {
 			// the main application `app/main` and the `dojo/i18n` and `dojo/domReady` modules because, while they are
 			// all conditional dependencies in `app/main`, we do not want to have to make extra HTTP requests for such
 			// tiny files.
-			include: [ 'dojo/i18n', 'dojo/domReady', 'app' ],
-
+			dependencies: [],
 			// By default, the build system will try to include `dojo/main` in the built `dojo/dojo` layer, which adds
 			// a bunch of stuff we do not want or need. We want the initial script load to be as small and quick to
 			// load as possible, so we configure it as a custom, bootable base.
-			boot: true,
+			boot: true
 			customBase: true
 		},
 
@@ -77,7 +76,44 @@ var profile = {
 		// to roll everything into a single layer, but this helps provide a basic illustration of multi-layer builds.)
 		// Note that when you create a new layer, the module referenced by the layer is always included in the layer
 		// (in this case, `app/Dialog`), so it does not need to be explicitly defined in the `include` array.
-		'client/Dialog': {}
+		'app/handlers/login': {
+			dependencies: [
+				"dojo/i18n",
+				"dojo/domReady",
+				"dijit/_WidgetBase",
+				"dijit/_TemplatedMixin",
+				"dijit/_WidgetsInTemplateMixin",
+				"dijit/form/Form",
+				"dijit/form/ValidationTextBox",
+				"dijit/form/MappedTextBox",
+				"dijit/form/Button",
+				'xstyle/css!../css/style.css'
+			]
+		},
+		'app/handlers/register': {
+			dependencies: [
+				"dojo/i18n",
+				"dojo/domReady",
+				"dijit/_WidgetBase",
+				"dijit/_TemplatedMixin",
+				"dijit/_WidgetsInTemplateMixin",
+				"dijit/form/Form",
+				"dijit/form/ValidationTextBox",
+				"dijit/form/MappedTextBox",
+				"dijit/form/Button",
+				'xstyle/css!../css/style.css'
+			]
+		},
+		'client/main': {
+			dependencies: [
+				"dojo/i18n",
+				"dojo/domReady",
+				"dijit/_WidgetBase",
+				"dijit/_TemplatedMixin",
+				"dijit/_WidgetsInTemplateMixin",
+				'xstyle/css!../css/style.css'
+			]
+		}
 	},
 
 	// Providing hints to the build system allows code to be conditionally removed on a more granular level than

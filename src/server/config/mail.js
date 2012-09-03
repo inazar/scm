@@ -3,7 +3,7 @@
 
 define({
 	method: 'dev', // can be smtp or dev
-	from: "SCM server"
+	from: "SCM server",
 	conf: {
 		host: "localhost"
 	}

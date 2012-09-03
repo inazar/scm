@@ -5,7 +5,7 @@ define([
 	"dojo/node!path",
 	"dojo/node!express",
 	"dojo/node!ejs",
-	"dojo/node!express/lib/response",
+	"./node/error",
 	"./node/session",
 	"dojo/node!passport",
 	"./auth/strategies",
@@ -13,8 +13,10 @@ define([
 	"dojo/node!connect-ensure-login",
 	"./config/session",
 	"./node/restify",
-	"./config/env"
-], function(declare, lang, util, path, express, ejs, Response, SessionStore, passport, strategies, authRoutes, login, sessionConfig, restify, env) {
+	"./auth/access",
+	"./config/env",
+	"app/config"
+], function(declare, lang, util, path, express, ejs, registerErrorHandlers, SessionStore, passport, strategies, authRoutes, login, sessionConfig, restify, access, env, config) {
 	// module:
 	//		server/node/app
 
@@ -28,41 +30,20 @@ define([
 	//		6) Set up static routes and favicon
 	//		7) Set up request logging (skip statics ???)
 	//		8) Set up sessions
-	//		9) Initialize locals for template engine
 	//		10) Initialize passport
+	//		9) Initialize locals for template engine
 	//		11) Set up router for server applications
 	//		12) Set up authentication strategies
 	//		11) Set up routes for unathorized access
 	//		13) Set up access verification
 	//		14) Set up secure routes
+	//		15) initialize user access handling
 	//		15) Set up error handling for xhr requests
 	//		16) Set up error handling for page request
 	//		17) Start server
 
 	// 1) Add convenience methods to Response object
-	var errors = {
-		BadRequest: 400,
-		Unauthorized: 401,
-		PaymentRequired: 402,
-		Forbidden: 403,
-		NotFound: 404,
-		MethodNotAllowed: 405,
-		NotAcceptable: 406,
-		InternalError: 500,
-		NotImplemented: 501,
-		BadGateway: 502,
-		ServiceUnavailable: 503
-	};
-
-	for (var k in errors) {
-		(function (type) {
-			Response[type] = function (msg) {
-				if (msg) this.send(errors[type], {name: "Error", message: msg});
-				else this.send(errors[type], {name: "Error", message: type});
-			}
-		})(k);
-	}
-
+	registerErrorHandlers();
 	// 2) Collect routes from "app/routes" and create routes and access objects
 	// 3) Create Express server
 	var app = express();
@@ -93,7 +74,7 @@ define([
 		app.use(express.favicon('path'));   // TODO: create favicon
 		// expose only few folders
 		['app', 'client', 'lib'].forEach(function(p) {
-			app.use('/' + p, express.static(path.join(env.root, p)));
+			app.use('/' + p, express['static'](path.join(env.root, p))); // jslint consider this .static as error
 		});
 
 		// 7) Set up request logging (skip statics ???)
@@ -107,14 +88,16 @@ define([
 				reap: sessionConfig.reap
 			})
 		}));
-		// 9) Initialize locals for template engine
-		app.use(function(req, res, next) {
-			res.locals({});
-			next();
-		});
 		// 10) Initialize passport
 		app.use(passport.initialize());
 		app.use(passport.session());
+		// 9) Initialize locals for template engine
+		app.use(function(req, res, next) {
+			res.locals({
+				locale: req.user && req.user.locale ? req.user.locale : config.defaultLocale ? config.defaultLocale : 'en-us'
+			});
+			next();
+		});
 		// 11) Set up router for server applications
 		app.use(app.router);
 		// 12) Set up authentication strategies
@@ -122,12 +105,17 @@ define([
 		// 11) Set up routes for unathorized access
 		authRoutes(app, passport);
 		// 13) Set up access verification
-		app.use(login.ensureLoggedIn({ redirectTo: env.login }));
+		app.use(function(req, res, next) {
+			if ((!req.isAuthenticated || !req.isAuthenticated())) {
+				if (req.xhr) res.Unauthorized();
+				else res.redirect(env.login);
+			} else next();
+		});
 		// 14) Set up secure routes
 		restify(app, path.join(env.root, 'server', 'routes')).then(
-			function (routes) {
-				debugger;
-				console.log(routes);
+			function (accessTemplate) {
+				// 15) initialize user access handling
+				access.template = accessTemplate;
 				// 15) Set up error handling for xhr requests
 				app.use(function(err, req, res, next) {
 					if (req.xhr) res.send(err.status ? err.status : 500, { name: err.name, message: err.message });

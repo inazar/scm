@@ -29,5 +29,5 @@ define({
 
 	// password: String
 	//		database password
-	password: process.env['DOTCLOUD_DATA_MONGODB_PASSWORD'] || 'Pa$$W0Rd',
+	password: process.env['DOTCLOUD_DATA_MONGODB_PASSWORD'] || 'Pa$$W0Rd'
 });

@@ -103,7 +103,7 @@ define([
 								});							
 							});
 						}, d.reject);
-						when(all(filePromises), function () { d.resolve({ children: children }); }, d.reject);
+						when(all(filePromises), function () { d.resolve({ name: "root", children: children }); }, d.reject);
 						// process dirs
 						dirs.forEach(function(dir) {
 							if (files.indexOf(dir+'.js') >= 0) {
