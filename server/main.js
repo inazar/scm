@@ -73,8 +73,9 @@ define([
 		// 6) Set up static routes and favicon
 		app.use(express.favicon('path'));   // TODO: create favicon
 		// expose only few folders
+		var staticBase = app.get('env') === 'production' ? path.join(env.root, 'production') : env.root;
 		['app', 'client', 'lib'].forEach(function(p) {
-			app.use('/' + p, express['static'](path.join(env.root, p))); // jslint consider this .static as error
+			app.use('/' + p, express['static'](path.join(staticBase, p))); // jslint consider this .static as error
 		});
 
 		// 7) Set up request logging (skip statics ???)
@@ -130,10 +131,11 @@ define([
 				});
 				app.configure('production', function() {
 					app.use(express.errorHandler());
+					app.set('json spaces', 0);
 				});
 				// 17) Start server
 				app.listen(env.port, function() {
-					util.log("Express server listening on port "+env.port+" in "+app.settings.env+" mode");
+					util.log("Express server listening on port "+env.port+" in "+app.get('env')+" mode");
 				});
 			}, function (err) { util.error("Error loading routes: "+err.message); }
 		);

@@ -3,6 +3,7 @@
 
 define([
 	"app/nls/translate!login",
+	"dojo/i18n!app/nls/login",
 	"app/config",
 	"client/widgets/login",
 	"dojox/validate/web",
@@ -12,12 +13,12 @@ define([
 	"dojo/window",
 	"dojo/_base/lang",
 	"app/handlers/error"
-], function (__, config, Login, validate, md5, on, request, win, lang, ErrorPane) {
+], function (__, nls, config, Login, validate, md5, on, request, win, lang, ErrorPane) {
 	// summary:
 	//		Manage login process
 
 	var login = new Login({
-		nls: __.nls,
+		nls: nls,
 		action: config.urls.login
 	});
 	if (login.errorPane) {

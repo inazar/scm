@@ -14,7 +14,7 @@ var profile = {
 	// `basePath` is relative to the directory containing this profile file; in this case, it is being set to the
 	// src/ directory, which is the same place as the `baseUrl` directory in the loader configuration. (If you change
 	// this, you will also need to update run.js.)
-	basePath: '../src/',
+	basePath: '../',
 
 	// This is the directory within the release directory where built packages will be placed. The release directory
 	// itself is defined by `build.sh`. You should probably not use this; it is a legacy option dating back to Dojo
@@ -67,7 +67,7 @@ var profile = {
 			// By default, the build system will try to include `dojo/main` in the built `dojo/dojo` layer, which adds
 			// a bunch of stuff we do not want or need. We want the initial script load to be as small and quick to
 			// load as possible, so we configure it as a custom, bootable base.
-			boot: true
+			boot: true,
 			customBase: true
 		},
 
@@ -78,8 +78,12 @@ var profile = {
 		// (in this case, `app/Dialog`), so it does not need to be explicitly defined in the `include` array.
 		'app/handlers/login': {
 			dependencies: [
-				"dojo/i18n",
+				"app/config",
+				"app/nls/translate",
+				"dojo/has",
 				"dojo/domReady",
+				"dojo/i18n",
+				"dojo/_base/config",
 				"dijit/_WidgetBase",
 				"dijit/_TemplatedMixin",
 				"dijit/_WidgetsInTemplateMixin",
@@ -92,8 +96,12 @@ var profile = {
 		},
 		'app/handlers/register': {
 			dependencies: [
-				"dojo/i18n",
+				"app/config",
+				"app/nls/translate",
+				"dojo/has",
 				"dojo/domReady",
+				"dojo/i18n",
+				"dojo/_base/config",
 				"dijit/_WidgetBase",
 				"dijit/_TemplatedMixin",
 				"dijit/_WidgetsInTemplateMixin",
@@ -106,8 +114,12 @@ var profile = {
 		},
 		'client/main': {
 			dependencies: [
-				"dojo/i18n",
+				"app/config",
+				"app/nls/translate",
+				"dojo/has",
 				"dojo/domReady",
+				"dojo/i18n",
+				"dojo/_base/config",
 				"dijit/_WidgetBase",
 				"dijit/_TemplatedMixin",
 				"dijit/_WidgetsInTemplateMixin",

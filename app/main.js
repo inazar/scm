@@ -35,22 +35,30 @@ require({
 		{ name: 'dgrid', location: 'lib/dgrid', destLocation: 'lib/dgrid' },
 		{ name: 'put-selector', location: 'lib/put-selector', destLocation: 'lib/put-selector' },
 		{ name: 'xstyle', location: 'lib/xstyle', destLocation: 'lib/xstyle' },
-		'app', 'server', 'client'
+		'app', 'client'
 	]
 // Require `app`. This loads the main application module, `app/main`, since we registered the `app` package above.
 }, [ 'dojo/has', 'require', 'dojo/_base/config', 'app/config' ], function (has, require, config, appConfig) {
-	if (!has('host-browser')) return require({ ioPublish: false }, ['server']);
-	require(['dojo/domReady!'], function() {
-		// now we run client
-		switch (window.location.pathname) {
-			case appConfig.urls.register:
-				require(['app/handlers/register']);
-				break;
-			case appConfig.urls.login:
-				require(['app/handlers/login']);
-				break;
-			default:
-				break;
-		}
-	});
+	if (has('host-node')) require({
+		ioPublish: false,
+		packages: [
+			{ name: 'dojo', location: 'lib/dojo', destLocation: 'lib/dojo' },
+			'app', 'server'
+		]
+	}, ['server']);
+	else {
+		require(['dojo/domReady!'], function() {
+			// now we run client
+			switch (window.location.pathname) {
+				case appConfig.urls.register:
+					require(['app/handlers/register']);
+					break;
+				case appConfig.urls.login:
+					require(['app/handlers/login']);
+					break;
+				default:
+					break;
+			}
+		});
+	}
 });
