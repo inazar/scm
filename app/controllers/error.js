@@ -33,6 +33,7 @@ define([
 		//	|		info: url which raised the error
 		//	|	}
 		_errors: [],
+		_timeout: null,
 		constructor: function (/*Object*/ kwArgs){
 			lang.mixin(this, kwArgs);
 			var self = this;
@@ -42,13 +43,19 @@ define([
 			// monitor io start to show loaging animation or message
 			notify("start", function(res) {
 				self.loader(true);
-				self._errors = [];
+				if (self._timeout) {
+					clearTimeout(self._timeout);
+					self._timeout = null;
+				} else self._errors = [];
 			});
 			// monitor io stop to stop loading and show status - error or Ok
 			notify("stop", function(res) {
 				self.loader(false);
-				if (!self._errors.length) self.ok();
-				else self.error(self._errors[0]);
+				self._timeout = setTimeout(function() {
+					self._timeout = null;
+					if (!self._errors.length) self.ok();
+					else self.error(self._errors[0]);
+				}, 750);
 			});
 			// monitor io errors
 			notify("error", function(err) {
@@ -64,7 +71,7 @@ define([
 						json = status ? { name: __(errors[status]) || status } : { name: __("Cannot connect to server") };
 						json.message = '';
 					}
-					json.info = __(json.info) || err.response.options.method+' '+err.response.url
+					json.info = __(json.info) || err.response.options.method+' '+err.response.url;
 					self._errors.push(json);
 					return json;
 				}

@@ -2,7 +2,7 @@ define({
 	locales: {
 		'en': "English",
 		'ru': "Русский",
-		'ua': "Українська"
+		'uk': "Українська"
 	},
 	"logo": "logo",
 	"title": "title",

@@ -116,7 +116,7 @@ define([
 		authRoutes(app, passport);
 		// 13) Set up access verification
 		["get", "put", "post", "delete"].forEach(function(m) {
-			app[m](config.urls.base, function(req, res, next) {
+			app[m](config.urls.base+'*', function(req, res, next) {
 				if ((!req.isAuthenticated || !req.isAuthenticated())) {
 					if (req.xhr) res.Unauthorized();
 					else res.redirect(env.login);

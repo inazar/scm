@@ -105,3 +105,9 @@ html, body {
 .errorInfo {
 	color: #ddd;
 }
+
+/* Router elements */
+
+.routerTree .dijitTreeRow {
+	width: 100%;
+}

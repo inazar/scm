@@ -8,8 +8,8 @@ define([
 	"dojo/when",
 	"dojo/_base/lang"
 ], function(fs, path, Deferred, all, when, lang) {
-	return function loader(app, root, prefix, parent, d) {
-		prefix = prefix || '';
+	return function loader(app, root, prefix, hash, parent, d) {
+		prefix = prefix || ''; hash = hash || '';
 		d = d || new Deferred();
 		fs.lstat(root, function(err, stat) {
 			if (err) return d.reject(err);
@@ -32,8 +32,10 @@ define([
 							var fd = filePromises[file] = new Deferred();
 							when(fd, function (child) {
 								var name = file.slice(0, -3);
-								if (routed[name]) lang.mixin(routed[name], child);
-								else children.push(child);
+								if (!child.skip) {
+									if (routed[name]) lang.mixin(routed[name], child);
+									else children.push(child);
+								}
 							});
 						});
 						function _getParams(required, optional) {
@@ -44,7 +46,7 @@ define([
 							return optional.reduce(function(prev, curr) {
 								return prev += '/:'+ curr+'?';
 							}, required.reduce(function(prev, curr) {
-								return prev += '/:'+curr;
+								return prev += (curr === '*' ? '/' : '/:') + curr;
 							}, '')) || '/';
 						}
 						function _processValidators(obj, parent) {
@@ -65,7 +67,7 @@ define([
 								processor.push(function (req, res, next) {
 									var promises = [];
 									params.forEach(function(param) {
-										promises.push(!validate[param] || validate[param](req.params));
+										promises.push(!validate || !validate[param] || validate[param](req.params));
 									});
 									when(all(promises), function (data) {
 										// proceed only if all checks are fulfilled
@@ -90,7 +92,7 @@ define([
 												validators = _processValidators(obj, parent),
 												handler = validators && validators.length ? [validators] : [];
 											if (obj.handler) handler.push(obj.handler);
-											access.name = name;
+											access.name = name; access.hash = hash + '/' + name;
 											if (handler.length) {
 												if (!access.methods) access.methods = {};
 												access.methods[m] = false;
@@ -99,6 +101,7 @@ define([
 											}
 										}
 									});
+									if (rest.skip) access.skip = rest.skip;
 									filePromises[file].resolve(access);
 								});							
 							});
@@ -109,9 +112,9 @@ define([
 							if (files.indexOf(dir+'.js') >= 0) {
 								require([path.join(root, dir+'.js')], function (file) {
 									var getHandler = file["get"] || {};
-									loader(app, path.join(root, dir), prefix+'/'+dir+_getParams((getHandler.required || []).concat(getHandler.optional || [])), (_processValidators(getHandler, parent) || ''), dirPromises[dir]);
+									loader(app, path.join(root, dir), prefix+'/'+dir+_getParams((getHandler.required || []).concat(getHandler.optional || [])), hash+'/'+dir, (_processValidators(getHandler, parent) || ''), dirPromises[dir]);
 								});
-							} else loader(app, path.join(root, dir), prefix+'/'+dir, parent, dirPromises[dir]);
+							} else loader(app, path.join(root, dir), prefix+'/'+dir, hash+'/'+dir, parent, dirPromises[dir]);
 						});
 					}, d.reject);
 					// sort files and dirs
