@@ -11,5 +11,5 @@ define({
 	},
 
 	'ru': true,
-	'ua': true
+	'uk': true
 });

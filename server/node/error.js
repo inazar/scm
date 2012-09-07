@@ -1,21 +1,9 @@
 // module:
 //		serve/node/error
 
-define(["dojo/node!express/lib/response"], function(Response) {
+define(["dojo/node!express/lib/response", "app/config"], function(Response, config) {
 
-	var errors = {
-		BadRequest: 400,
-		Unauthorized: 401,
-		PaymentRequired: 402,
-		Forbidden: 403,
-		NotFound: 404,
-		MethodNotAllowed: 405,
-		NotAcceptable: 406,
-		InternalError: 500,
-		NotImplemented: 501,
-		BadGateway: 502,
-		ServiceUnavailable: 503
-	};
+	var errors = config.errors;
 
 	function register() {
 		for(var k in errors) {

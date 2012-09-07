@@ -59,7 +59,7 @@ define([
 							// returns: Array|null
 							var validate = obj.validate,
 								params = (obj.required || []).concat(obj.optional || []),
-								processor = parent ? parent : [];
+								processor = parent ? parent.slice(0) : [];
 							if (obj.handler && params.length) {
 								// any actions if handler exists and 
 								processor.push(function (req, res, next) {

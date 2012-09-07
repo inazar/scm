@@ -1,0 +1,18 @@
+<div>
+	<div class="logo">${nls.logo}</div>
+	<span class="title">${nls.title}</span>
+	<div class="buttons">
+		<div>
+			<div id="languageChooser"
+				data-dojo-attach-point="languageChooser">
+			</div>
+		</div>
+		<span id="customerChooser"
+			data-dojo-attach-point="customerChooser"></span>
+		<button data-dojo-type="dijit/form/Button" type="button" id="logout">${nls.logout}
+			<script type="dojo/connect" data-dojo-event="onClick">
+				window.location = "/logout";
+			</script>
+		</button>
+	</div>
+</div>

@@ -92,10 +92,19 @@ define([
 		// 10) Initialize passport
 		app.use(passport.initialize());
 		app.use(passport.session());
+		// 5) determine user locale
+		app.use(function (req, res, next) {
+			var requested = req.headers["accept-language"] || '';
+			var _ref = requested.match(/[a-z]+/gi);
+			req.locale = (_ref[0] in config.locales) ? _ref[0] : config.defaultLocale;
+			next();
+		});
 		// 9) Initialize locals for template engine
 		app.use(function(req, res, next) {
 			res.locals({
-				locale: req.user && req.user.locale ? req.user.locale : config.defaultLocale ? config.defaultLocale : 'en-us'
+				locale: req.user && req.user.locale ? req.user.locale : req.locale ? req.locale.toLowerCase() : config.defaultLocale,
+				user: req.user ? req.user.get('_id') : null,
+				client: req.user && req.user.customer ? req.user.customer.get('_id') : null
 			});
 			next();
 		});
@@ -106,17 +115,23 @@ define([
 		// 11) Set up routes for unathorized access
 		authRoutes(app, passport);
 		// 13) Set up access verification
-		app.use(function(req, res, next) {
-			if ((!req.isAuthenticated || !req.isAuthenticated())) {
-				if (req.xhr) res.Unauthorized();
-				else res.redirect(env.login);
-			} else next();
+		["get", "put", "post", "delete"].forEach(function(m) {
+			app[m](config.urls.base, function(req, res, next) {
+				if ((!req.isAuthenticated || !req.isAuthenticated())) {
+					if (req.xhr) res.Unauthorized();
+					else res.redirect(env.login);
+				} else next();
+			});
 		});
 		// 14) Set up secure routes
 		restify(app, path.join(env.root, 'server', 'routes')).then(
 			function (accessTemplate) {
 				// 15) initialize user access handling
 				access.template = accessTemplate;
+				// 15) set up main page handler for client
+				app.get(config.urls.base, function (req, res, next) {
+					res.render('layout', {layout: false, body: ''});
+				});
 				// 15) Set up error handling for xhr requests
 				app.use(function(err, req, res, next) {
 					if (req.xhr) res.send(err.status ? err.status : 500, { name: err.name, message: err.message });

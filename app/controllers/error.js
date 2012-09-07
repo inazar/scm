@@ -1,5 +1,5 @@
 // module:
-//		app/handlers/error
+//		app/controllers/error
 
 define([
 	"app/nls/translate!error",
@@ -7,8 +7,15 @@ define([
 	"dojo/_base/lang",
 	"dojo/on",
 	"dojo/request/notify",
-	"client/widgets/error"
-], function (__, declare, lang, on, notify, ErrorWidget) {
+	"client/widgets/error",
+	"dijit/Dialog",
+	"app/handlers/login",
+	"app/config"
+], function (__, declare, lang, on, notify, ErrorWidget, Dialog, login, config) {
+
+	var errors = {};
+	for (var k in config.errors) errors[config.errors[k]] = k;
+
 	// summary:
 	//		declare error pane which establish error monitoring.
 	//		Error pane object API:
@@ -45,18 +52,34 @@ define([
 			});
 			// monitor io errors
 			notify("error", function(err) {
-				var json, k;
-				try {
-					json = JSON.parse(err.response.data);
-					for (k in json) json[k] = __(json[k]);
-				} catch (e) {
-					json = {
-						name: __("JSON error"),
-						message: __(e.message)
-					};
+				
+				var status = err.response.status;
+
+				function _displayError() {
+					var json, k;
+					try {
+						json = JSON.parse(err.response.data);
+						for (k in json) json[k] = __(json[k]);
+					} catch (e) {
+						json = status ? { name: __(errors[status]) || status } : { name: __("Cannot connect to server") };
+						json.message = '';
+					}
+					json.info = __(json.info) || err.response.options.method+' '+err.response.url
+					self._errors.push(json);
+					return json;
 				}
-				json.info = __(json.info) || err.response.options.method+' '+err.response.url
-				self._errors.push(json);
+
+				if (status === 401) { // Unathorized
+					var dialog = new Dialog({
+						title: __("login"),
+						content: login(true),
+						onCancel: function () {
+							dialog.destroyRecursive();
+							self.error(_displayError());
+						}
+					});
+					dialog.show();
+				} else _displayError();
 			});
 		}
 	});

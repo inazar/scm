@@ -12,7 +12,7 @@ define([
 	"dojo/request",
 	"dojo/window",
 	"dojo/_base/lang",
-	"app/handlers/error"
+	"app/controllers/error"
 ], function (__, nls, config, Register, validate, md5, on, request, win, lang, ErrorPane) {
 	// summary:
 	//		Manage login process

@@ -54,7 +54,10 @@ require({
 					require(['app/handlers/register']);
 					break;
 				case appConfig.urls.login:
-					require(['app/handlers/login']);
+					require(['app/handlers/login'], function(login) { login(); });
+					break;
+				case appConfig.urls.base:
+					require(['app/handlers/index']);
 					break;
 				default:
 					break;
