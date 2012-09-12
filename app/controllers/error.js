@@ -8,7 +8,7 @@ define([
 	"dojo/on",
 	"dojo/request/notify",
 	"client/widgets/error",
-	"dijit/Dialog",
+	"client/widgets/Dialog",
 	"app/handlers/login",
 	"app/config"
 ], function (__, declare, lang, on, notify, ErrorWidget, Dialog, login, config) {

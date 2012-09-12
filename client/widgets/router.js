@@ -4,6 +4,7 @@ define([
 	"dojo/_base/declare",
 	"app/config",
 	"dojo/_base/config",
+	"dojo/topic",
 	// template
 	"dojo/text!client/views/router.html",
 	"dijit/form/Button",
@@ -13,16 +14,29 @@ define([
 	"dijit/_WidgetsInTemplateMixin",
 	// preload dependencies for template
 	"dijit/Tree"
-], function (declare, config, dojoConfig, template, Button, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, Tree) {
+], function (declare, config, dojoConfig, topic, template, Button, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, Tree) {
 	return declare([_WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin], {
 		templateString: template,
 		postCreate: function () {
 			this.inherited(arguments);
-			new Tree({
+			this._tree = new Tree({
 				showRoot: false,
 				'class': 'routerTree',
-				model: this.model
+				model: this.model,
+				onClick: function (item, node) {
+					if (item.noRoute) {
+						if (node.isExpanded) this._collapseNode(node);
+						else this._expandNode(node);
+					} else topic.publish('router/go', item);
+				}
 			}, this.tree);
+		},
+		select: function(hash) {
+			var path = [], prefix = '';
+			hash.split('/').forEach(function(p) {
+				path.push(prefix = (prefix !== '/' ? prefix : '') + '/' + p);
+			});
+			return this._tree.set('paths', [path]);
 		}
 	});
 });

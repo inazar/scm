@@ -11,6 +11,7 @@ define([
 	var ClientSchema = new Schema({
 		name: { type: String, unique: true },
 		secret: { type: String, select: false },
+		admins: [{ type: ObjectId, ref: 'user', select: false }],
 		redirect_uri: String
 	});
 

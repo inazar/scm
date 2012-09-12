@@ -28,7 +28,7 @@ define([
 	// simple matter of serializing the client's ID, and deserializing by finding
 	// the client by ID from the database.
 
-	server.serializeClient(function(client, next) { next(null, client.get('_id')); });
+	server.serializeClient(function(client, next) { next(null, client.id); });
 	server.deserializeClient(function(id, next) { Client.findById(id, next); });
 
 	// Register supported grant types.

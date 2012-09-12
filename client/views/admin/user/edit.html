@@ -1,0 +1,33 @@
+<div>
+	<script type="dojo/require">at:"dojox/mvc/at",lang:"dojo/_base/lang"</script>
+	<div class="vspan"
+		data-dojo-attach-point="form"
+		data-dojo-type="dijit/form/Form">
+		<table>
+			<tr>
+				<td>Name:</td>
+				<td><div data-dojo-type="dijit/form/ValidationTextBox"
+					data-dojo-props="value:at(this.control, 'name'),placeholder:lang.getObject('model._template.name.placeholder',false,this),required:lang.getObject('model._template.name.required',false,this)">
+				</div></td>
+			</tr>
+			<tr>
+				<td>Email:</td>
+				<td><div data-dojo-type="app/controllers/Output" data-dojo-props="value:at(this.control,'email')"></div></td>
+			</tr>
+			<tr>
+				<td>Confirmed:</td>
+				<td><div data-dojo-type="app/controllers/Output" data-dojo-props="value:at(this.control,'confirmed')"></div></td>
+			</tr>
+			<tr>
+				<td>Failures:</td>
+				<td><div data-dojo-type="app/controllers/Output" data-dojo-props="value:at(this.control,'failures')"></div></td>
+			</tr>
+				<td>Blocked:</td>
+				<td><div data-dojo-type="dijit/form/CheckBox" data-dojo-props="checked:at(this.control, 'blocked')"></div></td>
+			<tr><td colspan="2">
+				<button data-dojo-type="dijit/form/Button" data-dojo-attach-point="resetButton">Reset</button>
+				<button type="submit" data-dojo-type="dijit/form/Button" data-dojo-attach-point="saveButton">Save</button>
+			</td></tr>
+		</table>
+	</div>
+</div>

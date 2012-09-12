@@ -67,7 +67,7 @@ define([
 								processor.push(function (req, res, next) {
 									var promises = [];
 									params.forEach(function(param) {
-										promises.push(!validate || !validate[param] || validate[param](req.params));
+										promises.push(!validate || !validate[param] || validate[param](req.params, req.user));
 									});
 									when(all(promises), function (data) {
 										// proceed only if all checks are fulfilled

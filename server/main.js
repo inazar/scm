@@ -124,7 +124,7 @@ define([
 			});
 		});
 		// 14) Set up secure routes
-		restify(app, path.join(env.root, 'server', 'routes')).then(
+		restify(app, path.join(env.root, 'server', 'rest')).then(
 			function (accessTemplate) {
 				// 15) initialize user access handling
 				access.template = accessTemplate;

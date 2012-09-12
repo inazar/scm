@@ -10,7 +10,8 @@ define([
 		skip: true,
 		"get": {
 			handler: function (req, res, next) {
-				var hash = (req.params && req.params[0] ? '/'+req.params[0] : '').split('/').slice(1), k, i, c, o, a = access.template;
+				if (!req.user) return res.Unauthorized();
+				var hash = (req.params && req.params[0] ? '/'+req.params[0] : '').split('/').slice(1), k, i, c, o, a = req.user.routes || {};
 				for (k = 0; k<hash.length; k++) {
 					if (c = a.children) {
 						for(i=0; i<c.length; i++) {
@@ -26,9 +27,7 @@ define([
 				if (a) {
 					for (i=0; i<a.length; i++) {
 						o = {};
-						for (k in a[i]) {
-							o[k] = a[i][k];
-						}
+						for (k in a[i]) o[k] = a[i][k];
 						if (o.children) o.children = true;
 						c.push(o);
 					}

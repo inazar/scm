@@ -63,5 +63,11 @@ define({
 		NotImplemented: 501,
 		BadGateway: 502,
 		ServiceUnavailable: 503
+	},
+	routes: {
+		'/profile': 'profile',
+		'/admin/:cid/user': 'admin/user',
+		'/admin/:cid': 'admin/client',
+		'/admin': "admin"
 	}
 });

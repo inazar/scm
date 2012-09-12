@@ -1,0 +1,27 @@
+<div>
+	<script type="dojo/require">at:"dojox/mvc/at"</script>
+	<table>
+		<tr>
+			<td>User's name:</td>
+			<td>
+				<div
+					data-dojo-type="dijit/form/TextBox"
+					data-dojo-props="value:at(this.model, 'name')">
+				</div>
+			</td>
+		</tr>
+		<tr>
+			<td>Email:</td>
+			<td>
+				<div
+					data-dojo-type="dijit/form/TextBox"
+					data-dojo-props="value:at(this.model, 'email')">
+				</div>
+			</td>
+		</tr>
+		<tr><td colspan="2">
+			<button type="submit"
+				data-dojo-type="dijit/form/Button">Save</button>
+		</td></tr>
+	</table>
+</div>

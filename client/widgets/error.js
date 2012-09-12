@@ -24,7 +24,7 @@ define([
 	return declare([_WidgetBase, _TemplatedMixin], {
 		templateString: template,
 		filter: function (obj) { return obj; },
-		ok: function () { status(this, 'statusOk', { name:'', message:'' }); },
+		ok: function (msg) { status(this, 'statusOk', { name: msg || '', message: '' }); },
 		error: function (error /* Object */) { status(this, 'statusError', this.filter(error)); },
 		warning: function (warning /* Object */) { status(this, 'statusWraning', this.filter(error)); },
 		loader: function (start /* Boolean */) { status(this, start ? 'statusLoading' : '', { name:'', message:'' }); }
