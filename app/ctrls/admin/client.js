@@ -1,10 +1,10 @@
 // module:
-//		app/controllers/admin
+//		app/ctrls/admin
 define([
-	"app/nls/translate!admin",
+	"app/ctrls/translate!admin",
 	"dojo/_base/declare",
-	"client/widgets/admin/client"
-	"app/models/client",
+	"client/widgets/admin/client",
+	"app/models/client"
 ], function (__, declare, Client, clientStore) {
 	// summary:
 	//		Declare client admin page

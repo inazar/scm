@@ -1,14 +1,14 @@
 // module:
 //		app/handlers/index
 define([
-	"app/nls/translate!",
+	"app/ctrls/translate!",
 	"dojo/i18n!app/nls/index",
 	"app/config",
 	"dojo/topic",
 	"client/widgets/layout",
-	"app/controllers/error",
-	"app/controllers/header",
-	"app/controllers/router",
+	"app/ctrls/error",
+	"app/ctrls/header",
+	"app/ctrls/router",
 	"dojo/Stateful"
 ], function (__, nls, config, topic, Layout, ErrorController, HeaderController, RouterController, Stateful) {
 	// summary:

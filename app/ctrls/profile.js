@@ -1,9 +1,9 @@
 // module:
-//		app/controllers/profile
+//		app/ctrls/profile
 define([
 	"dojo/_base/declare",
 	"dojo/_base/config",
-	"app/controllers/admin/user",
+	"app/ctrls/admin/user",
 	"app/models/user"
 ], function (declare, dojoConfig, User, userStore) {
 	// summary:

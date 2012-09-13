@@ -9,8 +9,8 @@ define([
 	"dojo/text!client/views/admin/user/view.html",
 	"dojo/text!client/views/admin/user/edit.html",
 	// declare templated widget
-	"app/controllers/mvc/Templated",
-	"app/controllers/mvc/Output",
+	"app/ctrls/mvc/Templated",
+	"app/ctrls/mvc/Output",
 	"dojox/mvc/at",
 	"dijit/form/Form",
 	"dijit/form/Button",

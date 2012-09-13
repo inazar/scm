@@ -1,7 +1,7 @@
 // module:
-//		app/controllers/router
+//		app/ctrls/router
 define([
-	"app/nls/translate!routes",
+	"app/ctrls/translate!routes",
 	"app/config",
 	"require",
 	"dojo/_base/declare",
@@ -40,7 +40,7 @@ define([
 			for (var route in config.routes) {
 				(function(route, controller) {
 					router.register(route, function(evt) {
-						require(["app/controllers/"+controller], function (Page) {
+						require(["app/ctrls/"+controller], function (Page) {
 							topic.publish('page/clear');
 							when(self.select(evt.newPath), function () {
 								var access = {};

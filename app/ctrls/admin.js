@@ -1,7 +1,7 @@
 // module:
-//		app/controllers/admin
+//		app/ctrls/admin
 define([
-	"app/nls/translate!admin",
+	"app/ctrls/translate!admin",
 	"dojo/i18n!app/nls/admin",
 	"dojo/_base/declare",
 	"client/widgets/admin"

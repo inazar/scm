@@ -1,5 +1,5 @@
 // module:
-//	app/nls/translate
+//	app/ctrls/translate
 define({
 	load: function (/*string*/ id, /*Function*/ require, /*Function*/ load) {
 		require(["dojo/i18n!app/nls/"+(id || 'index')], function (nls) {

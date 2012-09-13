@@ -79,7 +79,7 @@ var profile = {
 		'app/handlers/login': {
 			dependencies: [
 				"app/config",
-				"app/nls/translate",
+				"app/ctrls/translate",
 				"dojo/has",
 				"dojo/domReady",
 				"dojo/i18n",
@@ -97,7 +97,7 @@ var profile = {
 		'app/handlers/register': {
 			dependencies: [
 				"app/config",
-				"app/nls/translate",
+				"app/ctrls/translate",
 				"dojo/has",
 				"dojo/domReady",
 				"dojo/i18n",
@@ -115,7 +115,7 @@ var profile = {
 		'client/main': {
 			dependencies: [
 				"app/config",
-				"app/nls/translate",
+				"app/ctrls/translate",
 				"dojo/has",
 				"dojo/domReady",
 				"dojo/i18n",

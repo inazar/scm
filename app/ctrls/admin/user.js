@@ -1,7 +1,7 @@
 // module:
-//		app/controllers/admin
+//		app/ctrls/admin
 define([
-	"app/nls/translate!admin",
+	"app/ctrls/translate!admin",
 	"dojo/_base/declare",
 	"dojo/_base/lang",
 	"dojo/on",
@@ -10,7 +10,7 @@ define([
 	"dojox/mvc/StoreRefController",
 	"client/widgets/admin/user",
 	"app/models/user",
-	"app/controllers/error"
+	"app/ctrls/error"
 ], function (__, declare, lang, on, when, topic, StoreRefController, User, userStore, error) {
 	// summary:
 	//		Declare client admin page

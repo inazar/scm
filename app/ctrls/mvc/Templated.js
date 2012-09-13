@@ -1,7 +1,7 @@
 // module:
 //		app/controlers/Templated
 define([
-	"app/nls/translate!admin",
+	"app/ctrls/translate!admin",
 	"dojo/_base/declare",
 	// template
 	"dojo/text!client/views/unathorized.html",

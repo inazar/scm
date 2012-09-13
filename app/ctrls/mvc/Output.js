@@ -1,7 +1,7 @@
 // module:
 //		app/controlers/Output
 define([
-	"app/nls/translate!admin",
+	"app/ctrls/translate!admin",
 	"dojo/_base/declare",
 	"dojox/mvc/Output"
 ], function (__, declare, Output) {

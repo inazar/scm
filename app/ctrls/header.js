@@ -1,7 +1,7 @@
 // module:
-//		app/controllers/header
+//		app/ctrls/header
 define([
-	"app/nls/translate!index",
+	"app/ctrls/translate!index",
 	"dojo/i18n!app/nls/index",
 	"dojo/_base/declare",
 	"dojo/_base/config",

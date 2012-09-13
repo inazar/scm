@@ -1,8 +1,8 @@
 // module:
-//		app/controllers/error
+//		app/ctrls/error
 
 define([
-	"app/nls/translate!error",
+	"app/ctrls/translate!error",
 	"dojo/_base/declare",
 	"dojo/_base/lang",
 	"dojo/on",

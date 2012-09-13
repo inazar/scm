@@ -1,0 +1,17 @@
+<div>
+	<script type="dojo/require">
+		at: "dojox/mvc/at",
+		clientStore: "app/models/client"
+	</script>
+	<span
+		data-dojo-type="dojox/mvc/ModelRefController"
+		data-dojo-props="model:this.model"></span>
+	<span
+		data-dojo-attach-point="controller"
+		data-dojo-type="dojox/mvc/EditStoreRefController"
+		data-dojo-props="store:clientStore,holdModelUntilCommit:true"></span>
+	<div
+		data-dojo-type="dijit/form/TextBox"
+		data-dojo-props="value:at(clientStore, 'name')">
+	</div>
+</div>

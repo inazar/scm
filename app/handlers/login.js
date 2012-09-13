@@ -2,7 +2,7 @@
 //		app/handlers/login
 
 define([
-	"app/nls/translate!login",
+	"app/ctrls/translate!login",
 	"dojo/i18n!app/nls/login",
 	"app/config",
 	"client/widgets/login",
@@ -12,7 +12,7 @@ define([
 	"dojo/request",
 	"dojo/window",
 	"dojo/_base/lang",
-	"app/controllers/error"
+	"app/ctrls/error"
 ], function (__, nls, config, Login, validate, md5, on, request, win, lang, ErrorPane) {
 	// summary:
 	//		Manage login process
