@@ -6,8 +6,9 @@ define([
 	"dojo/Deferred",
 	"dojo/promise/all",
 	"dojo/when",
-	"dojo/_base/lang"
-], function(fs, path, Deferred, all, when, lang) {
+	"dojo/_base/lang",
+	"../auth/access"
+], function(fs, path, Deferred, all, when, lang, Access) {
 	return function loader(app, root, prefix, hash, parent, d) {
 		prefix = prefix || ''; hash = hash || '';
 		d = d || new Deferred();
@@ -63,39 +64,54 @@ define([
 								params = (obj.required || []).concat(obj.optional || []),
 								processor = parent ? parent.slice(0) : [];
 							if (obj.handler && params.length) {
-								// any actions if handler exists and 
-								processor.push(function (req, res, next) {
-									var promises = [];
-									params.forEach(function(param) {
-										promises.push(!validate || !validate[param] || validate[param](req.params, req.user));
-									});
-									when(all(promises), function (data) {
-										// proceed only if all checks are fulfilled
-										var i;
-										if (data.every(function(valid, index) { i = index; return valid; })) next();
-										else res.Unathorized({name: "Invalid parameter", message: params[i]});
-									}, function (err) { next(err); });
+								params.forEach(function(param) {
+									if (validate && validate[param]) processor.push(validate[param]);
 								});
-								return processor;
+								return processor.length ? processor : null;
 							} else return parent ? parent : null;
 						}
-						when(all(dirPromises), function () {
+						all(dirPromises).then(function () {
 							// process files
 							files.forEach(function (file) {
-								var name = file.slice(0, -3);
+								var name = file.slice(0, -3), access = { name: name, hash: hash + '/' + name, methods: {} };
 								require([path.join(root, file)], function (rest) {
-									var access = {};
 									["get", "put", "post", "delete"].forEach(function (m) {
 										if (rest[m]) {
 											var obj = rest[m],
 												route = prefix + '/'+ name + _getParams(obj.required, obj.optional),
-												validators = _processValidators(obj, parent),
-												handler = validators && validators.length ? [validators] : [];
+												params = (obj.required || []).concat(obj.optional || []),
+												validators = _processValidators(obj, parent), handler = [];
+
+											if (validators) {
+												// handler shall validate on request
+												handler.push(function (req, res, next) {
+													var promises = [];
+													validators.forEach(function (validator) {
+														promises.push(validator(req.params, req.user));
+													});
+													all(promises).then(function (data) {
+														// proceed only if all checks are fulfilled
+														var i;
+														if (data.every(function(valid, index) { i = index; return valid; })) next();
+														else res.Unathorized({name: "Invalid parameter", message: params[i]});
+													}, function (err) { next(err); });
+												});
+												// access validator validate when route is calculated
+												Access.routers[m].register(route, function (evt) {
+													var promises = [], vd = new Deferred();
+													validators.forEach(function (validator) {
+														promises.push(validator(evt.params, evt.user));
+													});
+													all(promises).then(function (valids) {
+														vd.resolve(valids.every(function(valid) { return valid; }));
+													}, vd.reject);
+													return vd.promise;
+												});
+											}
+											access.methods[m] = undefined;
+
 											if (obj.handler) handler.push(obj.handler);
-											access.name = name; access.hash = hash + '/' + name;
 											if (handler.length) {
-												if (!access.methods) access.methods = {};
-												access.methods[m] = false;
 												console.log(m.toUpperCase(), route);
 												app[m](route, handler);
 											}
@@ -106,7 +122,7 @@ define([
 								});							
 							});
 						}, d.reject);
-						when(all(filePromises), function () { d.resolve({ name: "root", children: children }); }, d.reject);
+						all(filePromises).then(function () { d.resolve({ name: "root", children: children }); }, d.reject);
 						// process dirs
 						dirs.forEach(function(dir) {
 							if (files.indexOf(dir+'.js') >= 0) {
@@ -130,5 +146,5 @@ define([
 			} else d.reject(new Error("Can load routes only from directory"));
 		});
 		return d.promise;
-	}
+	};
 });

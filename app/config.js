@@ -65,9 +65,19 @@ define({
 		ServiceUnavailable: 503
 	},
 	routes: {
-		'/profile': 'profile',
-		'/admin/:cid/user': 'admin/user',
-		'/admin/:cid': 'admin/client',
-		'/admin': "admin"
+		'/profile': {
+			controller: 'profile'
+		},
+		'/admin/users/:uid': {
+			controller: 'admin/user',
+			stores: ['/user/:uid']
+		},
+		'/admin/:cid': {
+			controller: 'admin/client',
+			stores: ['/client/:cid']
+		},
+		'/admin': {
+			controller: "admin/client"
+		}
 	}
 });

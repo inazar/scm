@@ -108,6 +108,10 @@ html, body {
 
 /* Router elements */
 
-.routerTree .dijitTreeRow {
+#router {
+	padding-bottom: 10px;
+}
+
+#router .dijitTreeRow {
 	width: 100%;
 }

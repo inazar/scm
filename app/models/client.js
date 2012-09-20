@@ -2,17 +2,18 @@
 //		app/models/client
 define([
 	"dojo/store/JsonRest",
-	"dojo/store/Observable",
-	"dojox/mvc/getStateful"
+	"dojo/store/Observable"
 ], function (JsonRest, Observable, getStateful) {
 	// summary:
 	//		define JsonStore for client
 
 	return Observable(new JsonRest({
-		model: getStateful({
-			name: "Enter client's name",
-			secret: undefined
-		}),
+		_template: {
+			name: {		// Client's name
+				placeholder: "Enter client's name",
+				required: true
+			}
+		},
 		target: '/client/',
 		idProperty: '_id'
 	}));

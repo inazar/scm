@@ -38,11 +38,11 @@ define([
 				});
 			}
 		});
-
 		if (dialog) return login;
 
 		if (login.errorPane) {
 			var errorHandler = new ErrorPane({
+				internal: true,
 				filter: function (obj) {
 					var newObj = {};
 					['name', 'message'].forEach(function (prop) { newObj[prop] = obj[prop]; });
@@ -55,5 +55,5 @@ define([
 			on(window, "resize", lang.hitch(login, login.place));
 			login.place();
 		}
-	}
+	};
 });

@@ -7,8 +7,10 @@ define([
 	"../config/env",
 	"./Client",
 	"dojo/Deferred",
-	"dojo/when"
-], function (mongo, Schema, ObjectId, env, Client, Deferred, when) {
+	"dojo/when",
+	"dojo/promise/all",
+	"../auth/access"
+], function (mongo, Schema, ObjectId, env, Client, Deferred, when, all, access) {
 
 	// summary:
 	//		User database object
@@ -43,9 +45,9 @@ define([
 				if (user.failures) {
 					user.failures = 0;
 					user.save(function (err) {
-						_getRoutes(user, callback);
+						user.getRoutes(callback);
 					});
-				} else _getRoutes(user, callback);
+				} else user.getRoutes(callback);
 			} else {
 				if (user.failures === (env.loginFailures - 1)) {
 					user.failures = 0;
@@ -58,7 +60,114 @@ define([
 		});
 	};
 
-	function _getRoutes (user, callback) {
+	UserSchema.methods.getClientUsers = function (callback) {
+		// summary:
+		//		Generate client id indexed object containing user records
+		//		for clients, where user is admin
+		var cids = {}, user = this;
+		this.clients.forEach(function (client) {
+			if (user.admin || client.admins && client.admins.indexOf(user.id) >= 0) {
+				var d = cids[client.id] = new Deferred();
+				User.find({
+					clients: { $elemMatch: { id: client.id } }		// client is listed in user's clients
+				}).exec(function (err, users) {
+					if (err) d.reject(err);
+					else d.resolve(users);
+				});
+			}
+		});
+		// gather all users per client id
+		all(cids).then(function (res) { callback(null, res); }, callback);
+	};
+
+	UserSchema.methods.getAdminSection = function (admin) {
+		// summary:
+		//		create admin section for routes
+		//			admin page contains 'create client' page for global admin and nothing for others
+		//			admin section contains clients managed by current admin user
+		//			each client page contains 'create client' if client role alows sub-clients
+		//			each client section contains users page and clients page
+		//			users page contains form to create new user
+		//			users section contains list of users with edit form
+		//			clients page contains form to create new client
+		//			clients section contains list of clients with edit form
+
+		var d = new Deferred(), user = this, res = { name: 'admin' };
+
+		if (this.admin) {
+			res.hash = '/admin';
+			res.access = { "get": true, "post": true };
+		} else res.noRoute = true;
+
+		this.getClientUsers(function(err, cUsers) {
+			if (err) return d.reject(err);
+			// now create clients sections
+			var admins = [];
+			// get admin users edit links
+			if (user.admin) admins.push((function(prefix) {
+				var d = new Deferred();
+				User.find({admin: true}).exec(function(err, admins) {
+					if (err) return d.reject(err);
+					var cp = [];
+					admins.forEach(function(user) {
+						cp.push(access.get(prefix + '/' + user.id, user));
+					});
+					all(cp).then(function (access) {
+						var children = [];
+						admins.forEach(function (user, i) {
+							children.push({
+								name: user.name + ' (' + user.email + ')',
+								hash: prefix + '/!' + user.id,
+								access: access[i]
+							});
+						});
+						d.resolve({
+							name: 'users',
+							hash: prefix,
+							noRoute: true,
+							children: children
+						});
+					}, d.reject);
+				});
+				return d.promise;
+			})('/admin/users'));
+			admin.forEach(function (client) {
+				admins.push(client.getAdminSection('/admin', cUsers[client.id], user));
+			});
+			all(admins).then(function(children) {
+				if (children && children.length) res.children = children;
+				d.resolve(res);
+			}, d.reject);
+		});
+
+		return d.promise;
+	};
+
+	UserSchema.methods.getVendorSection = function (vendors) {
+		// summary:
+		// create vendor section for routes
+		var d = new Deferred(), user = this;
+
+		return d.promise;
+	};
+
+	UserSchema.methods.getSupplierSection = function (suppliers) {
+		// summary:
+		// create supplier section for routes
+		var d = new Deferred(), user = this;
+
+		return d.promise;
+	};
+
+	UserSchema.methods.getRetailerSection = function (retailers) {
+		// summary:
+		// create retailer section for routes
+		var d = new Deferred(), user = this;
+
+		return d.promise;
+	};
+
+	UserSchema.methods.getRoutes = function (callback) {
 		// summary:
 		//		Generate user access object in the format of client tree
 		//		Each client route is based on some REST routes. Client routes are defined 
@@ -73,74 +182,46 @@ define([
 		//		5) for supplier create supplier tab and add PO/Stock/Staticstics based on REST/supplier/:id
 		//		6) for retailer create retailer tab and add Order/Summary/Statistics based on REST/retailer/:id
 
-		var routes = [];
-		// user's profile
-		routes.push({
-			name: 'Profile',
-			hash: '/profile'
-		});
-		// get clients
-		User.findById(user._id).populate('clients').exec(function (err, user) {
+		var user = this, clients;
+		User.findById(user._id, '+admin').populate('clients').exec(function (err, user) {
 			if (err) return callback(err);
 			when((function(user) {
+				// if user is global admin collect all clients
 				if (user.admin) {
 					var cd = new Deferred();
-					Client.find({}, function(err, clients) {
-						if (err) cd.reject(err);
-						else {
-							user.clients = clients;
-							cd.resolve(user);
-						}
+					Client.find({}, function(err, c) {
+						if (err) return cd.reject(err);
+						clients = c;
+						cd.resolve(user);
 					});
 					return cd.promise;
-				} else return user;
+				} else {
+					clients = user.clients;
+					return user;
+				}
 			})(user), function(user) {
-				var clients = user.clients || [], vendors = [], suppliers = [], retailers = [], admin = [];
+				// user contains properly populated field clients
+				var vendors = [], suppliers = [], retailers = [], admin = [];
 				clients.forEach(function(client) {
-					if (client.role) {
-						if (client.role.vendor) vendors.push(client);
-						if (client.role.supplier) suppliers.push(client);
-						if (client.role.retailer) retailers.push(client);
-					}
+					if (client.vendor) vendors.push(client);
+					if (client.supplier && client.supplier.length) suppliers.push(client);
+					if (client.retailer && client.retailer.length) retailers.push(client);
 					if (user.admin || client.admins.indexOf(user.id) >= 0) admin.push(client);
 				});
-				function _populate (clients, name, noRoute) {
-					var children = [], hash = '/' + name,
-						route = {
-							name: name,
-							hash: hash
-						};
-					if (clients.length) {
-						clients.forEach(function (client) {
-							children.push({
-								name: client.name,
-								hash: hash + client.id
-							});
-						});
-						route.children = children;
-					}
-					if (noRoute) route.noRoute = true;
-					routes.push(route);
-					return route;
-				}
-				// populate admin section
-				if (user.admin || admin.length) {
-					var route = _populate(admin, 'admin');
-					if (user.admin) {
-						route.access = { post: true, role: ["vendor", "supplier", "retailer"] };
-					}
-				}
-				// populate vendor section
-				if (vendors.length) _populate(vendors, 'vendor');
-				// populate supplier section
-				if (suppliers.length) _populate(suppliers, 'supplier', true);
-				// populate retailer section
-				if (retailers.length) _populate(retailers, 'retailer', true);
-				user.routes = { name: 'root', children: routes };
-				callback(null, user);
-			}, callback);
+				// create user's routes
+				var sections = [ { name: 'Profile', hash: '/profile' } ];
+				if (user.admin || admin.length) sections.push(user.getAdminSection(admin));
+//				if (vendors.length) sections.push(user.getVendorSection(vendors));
+//				if (suppliers.length) sections.push(user.getSupplierSection(suppliers));
+//				if (retailers.length) sections.push(user.getRetailerSection(retailers));
+
+				all(sections).then(function(routes) {
+					user.routes = { name: 'root', children: routes };
+					callback(null, user); 
+				}, callback);
+			});
 		});
-	}
+	};
 
 	var User = mongo.model('user', UserSchema);
 	return User;

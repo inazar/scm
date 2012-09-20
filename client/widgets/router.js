@@ -21,7 +21,6 @@ define([
 			this.inherited(arguments);
 			this._tree = new Tree({
 				showRoot: false,
-				'class': 'routerTree',
 				model: this.model,
 				onClick: function (item, node) {
 					if (item.noRoute) {

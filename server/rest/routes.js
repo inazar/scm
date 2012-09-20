@@ -13,6 +13,7 @@ define([
 				if (!req.user) return res.Unauthorized();
 				var hash = (req.params && req.params[0] ? '/'+req.params[0] : '').split('/').slice(1), k, i, c, o, a = req.user.routes || {};
 				for (k = 0; k<hash.length; k++) {
+					if (hash[k][0] === '!') continue;
 					if (c = a.children) {
 						for(i=0; i<c.length; i++) {
 							if (c[i].name === hash[k]) {

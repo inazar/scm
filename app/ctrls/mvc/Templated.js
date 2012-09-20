@@ -17,7 +17,7 @@ define([
 			create: null
 		},
 		unathorized: {
-			message: __("You are not authorized to view thie page")
+			message: __("You are not authorized to view this page")
 		},
 		postscript: function() {
 			var self = this;
@@ -25,7 +25,7 @@ define([
 			if (this.access["get"]) {
 				if (this[this._idProperty]) this.templateString = this.access["put"] ? _getTemplate('edit') : _getTemplate('view');
 				else this.templateString = this.access["post"] ? _getTemplate('create') : this.unathorized.template;
-			} else templateString = this.templates.unathorized;
+			} else this.templateString = this.templates.unathorized;
 			this.inherited(arguments);
 		}
 	});

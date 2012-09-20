@@ -7,7 +7,7 @@ define([
 	return {
 		"get": {
 			handler: function (req, res, next) {
-				var id = req.params.id;
+				var id = req.params.uid;
 				if (id) {
 					User.findById(id, function (err, user) {
 						if (err) return next(err);
@@ -15,10 +15,10 @@ define([
 					});
 				} else res.send([]);
 			},
-			optional: ['id'],
+			optional: ['uid'],
 			validate: {
-				'id': function (params, user) {
-					if (user.admin || params.id === user.id) return true;
+				'uid': function (params, user) {
+					if (user.admin || params.uid === user.id) return true;
 					return user.clients && user.clients.some(function(client) {
 						return client.admins && client.admins.some(function (cUser) {
 							return user.id === cUser.id;
@@ -29,7 +29,7 @@ define([
 		},
 		"put": {
 			handler: function (req, res, next) {
-				var obj = req.body, id = req.params.id; delete obj._id;
+				var obj = req.body, id = req.params.uid; delete obj._id;
 				if (id) {
 					User.findByIdAndUpdate(id, obj, function(err, user) {
 						if (err) return next(err);
@@ -38,10 +38,10 @@ define([
 					});
 				} else res.NotFound();
 			},
-			required: ['id'],
+			required: ['uid'],
 			validate: {
-				'id': function (params, user) {
-					if (user.admin || params.id === user.id) return true;
+				'uid': function (params, user) {
+					if (user.admin || params.uid === user.id) return true;
 					return user.clients && user.clients.some(function(client) {
 						return client.admins && client.admins.some(function (cUser) {
 							return user.id === cUser.id;
@@ -54,6 +54,11 @@ define([
 			handler: function (req, res, next) {
 				console.log("user post");
 				next();
+			},
+			validate: {
+				'': function (params, user) {
+					return true;
+				}
 			}
 		},
 		"delete": {
@@ -61,10 +66,10 @@ define([
 				console.log("user delete");
 				next();
 			},
-			required: ['id'],
+			required: ['uid'],
 			validate: {
-				'id': function (params) {
-					console.log("user validate", params.id);
+				'uid': function (params) {
+					console.log("user validate", params.uid);
 					return true;
 				}
 			}

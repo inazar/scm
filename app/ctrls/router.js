@@ -52,12 +52,17 @@ define([
 							});
 						});
 					});
-				})(route, config.routes[route]);
+				})(route, config.routes[route].controller);
 			}
 			// listen to events - fired by widget
 			topic.subscribe('router/go', function(item) {
-				_access[item.hash] = item.access;
-				router.go(item.hash);
+				var hash = item.hash.split('/');
+				hash.forEach(function(path, i) {
+					if (path[0] === '!') hash[i] = path.slice(1);
+				});
+				hash = hash.join('/');
+				_access[hash] = item.access;
+				router.go(hash);
 			});
 			router.startup();
 		}

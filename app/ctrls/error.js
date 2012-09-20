@@ -76,7 +76,7 @@ define([
 					return json;
 				}
 
-				if (status === 401) { // Unathorized
+				if (status === 401 && !self.internal) { // Unathorized
 					var dialog = new Dialog({
 						title: __("login"),
 						content: login(true),
