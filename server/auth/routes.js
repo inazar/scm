@@ -38,7 +38,7 @@ define([
 		} ]);
 		// register confirm
 		app.get(env.register+'/:email/:hash', function (req, res, next) {
-			User.findOne({admin: true, confirmed: true}, function (err, user) {
+			User.findOne({root: true, confirmed: true}, function (err, user) {
 				if (err || user) return res.send(404);
 				User.findOne({
 					email: req.params.email,
@@ -55,7 +55,7 @@ define([
 		});
 		// register page
 		app.get(env.register, function (req, res, next) {
-			User.findOne({admin: true}, function (err, user) {
+			User.findOne({root: true}, function (err, user) {
 				if (err || user) return res.send(404);
 				if (env.dotcloud && req.header["X-Forwarded-Port"] !== 443) res.redirect("https://" + env.host + req.url);
 				else res.render('layout', {layout: false, action: env.login, body: ''});
@@ -63,7 +63,7 @@ define([
 		});
 		// register post
 		app.post(env.register, function (req, res, next) {
-			User.findOne({admin: true}, function (err, user) {
+			User.findOne({root: true}, function (err, user) {
 				if (err || user) return res.send(404);
 				var parsed = req.body;
 				if (!parsed || !parsed.email) return next(error.BadRequest("email is not set"));
@@ -76,7 +76,7 @@ define([
 				}, {
 					confirmed: false,
 					secret: parsed.password,
-					admin: true,
+					root: true,
 					code: utils.uid(5)					
 				}, { upsert: true }, function(err, user) {
 					if (err) return next(err);

@@ -39,14 +39,16 @@ require({
 	]
 // Require `app`. This loads the main application module, `app/main`, since we registered the `app` package above.
 }, [ 'dojo/has', 'require', 'dojo/_base/config', 'app/config' ], function (has, require, config, appConfig) {
-	if (has('host-node')) require({
-		ioPublish: false,
-		packages: [
-			{ name: 'dojo', location: 'lib/dojo', destLocation: 'lib/dojo' },
-			'app', 'server'
-		]
-	}, ['server']);
-	else {
+	if (has('host-node')) {
+		path = require.nodeRequire('path');
+		require({
+			baseUrl: path.resolve(),
+			async: true,
+			isDebug: true,
+			ioPublish: false,
+			packages: [ { name: 'dojo', location: 'lib/dojo' }, 'app', 'server' ]
+		}, ['server']);
+	} else {
 		require(['dojo/domReady!'], function() {
 			// now we run client
 			switch (window.location.pathname) {

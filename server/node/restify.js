@@ -39,7 +39,7 @@ define([
 								}
 							});
 						});
-						function _getParams(required, optional) {
+						var _getParams = Access.getParams = function (required, optional) {
 							// summary:
 							//		Compose query parameters string - first required, then optional
 							required = required || [];
@@ -60,15 +60,13 @@ define([
 							// parent: Array?
 							//		Any other middlewares
 							// returns: Array|null
-							var validate = obj.validate,
-								params = (obj.required || []).concat(obj.optional || []),
+							var validate = obj.validate || {},
+								params = (obj.required || []).concat(obj.optional || ['']),
 								processor = parent ? parent.slice(0) : [];
-							if (obj.handler && params.length) {
-								params.forEach(function(param) {
-									if (validate && validate[param]) processor.push(validate[param]);
-								});
-								return processor.length ? processor : null;
-							} else return parent ? parent : null;
+							params.forEach(function(param) {
+								if (validate[param]) processor.push(validate[param]);
+							});
+							return processor.length ? processor : null;
 						}
 						all(dirPromises).then(function () {
 							// process files
@@ -79,7 +77,7 @@ define([
 										if (rest[m]) {
 											var obj = rest[m],
 												route = prefix + '/'+ name + _getParams(obj.required, obj.optional),
-												params = (obj.required || []).concat(obj.optional || []),
+												params = (obj.required || []).concat(obj.optional || ['']),
 												validators = _processValidators(obj, parent), handler = [];
 
 											if (validators) {
@@ -118,7 +116,7 @@ define([
 										}
 									});
 									if (rest.skip) access.skip = rest.skip;
-									filePromises[file].resolve(access);
+									filePromises[file].resolve(access, _getParams);
 								});							
 							});
 						}, d.reject);

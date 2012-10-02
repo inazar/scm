@@ -6,16 +6,17 @@ define([
 	"../node/mongoose!ObjectId",
 	"../config/env",
 	"./Client",
+	"./Relation",
 	"dojo/Deferred",
 	"dojo/when",
 	"dojo/promise/all",
 	"../auth/access"
-], function (mongo, Schema, ObjectId, env, Client, Deferred, when, all, access) {
+], function (mongo, Schema, ObjectId, env, Client, Relation, Deferred, when, all, access) {
 
 	// summary:
 	//		User database object
 	var UserSchema = new Schema({
-		admin: { type: Boolean, select: false },
+		root: { type: Boolean },
 		email: { type: String, index: true },   			// User's email
 		name: { type: String },					 			// User's name
 		confirmed: { type: Boolean },						// Weather user confirmed email
@@ -24,6 +25,69 @@ define([
 		failures: { type: Number, 'default': 0 },			// Failed login attempts
 		locale: { type: String },							// User's preferred locale
 		clients: [{ type: ObjectId, ref: 'client' }]		// reference to customers
+	});
+
+	// summary:
+	//		getters/setters for user clients (user and admin)
+	['client', 'admin'].forEach(function (field) {
+		var role = (field === 'client' ? 'user' : 'admin'), self = this;
+		UserSchema.virtual(field).get(function() {
+			// summary:
+			//		find all clients/admins of this user
+			// return: Deferred
+			//		The deferred resolves to the array of user's clients
+			var d = new Deferred();
+			if (this.root) {
+				Client.find({}, '_id', function (err, clients) {
+					if (err) d.reject(err);
+					else d.resolve(clients.map(function (client) { return client._id; }));
+				});
+			} else {
+				Relation.find({ role: role, user: this._id }).exec(function (err, relations) {
+					if (err) d.reject(err);
+					else d.resolve(relations.map(function (relation) { return relation.parent; }));
+				});
+			}
+			return d.promise;
+		}).set(function (cid) {
+			// summary:
+			//		add new client/admin of this user
+			// cid: Client || ObjectId || String
+			//		If ObjectId or String provided, Client is searched.
+			// return: Deferred
+			//		The deferred resolves to this user
+			var d = new Deferred(), self = this;
+			if (this.root) d.resolve(this);
+			else {
+				when(_verifyId(cid, Client), function (cid) {
+					Relation.find({ role: role, parent: cid, user: this._id }).exec(function (err, relation) {
+						if (err) return d.reject(err);
+						if (relation && relation.length) return d.resolve(self);
+						Relation.create({ role: role, parent: cid, user: self._id }).exec(function (err) {
+							if (err) d.reject(err);
+							else d.resolve(self);
+						});
+					});
+				}, d.reject);
+			}
+			return d.promise;
+		});
+	});
+
+	UserSchema.virtual('Client').get(function() {
+		var d = new Deferred();
+		if (this.root) {
+			Client.find({}, function (err, clients) {
+				if (err) d.reject(err);
+				else d.resolve(clients);
+			});
+		} else {
+			Relation.find({ role: 'user', user: this._id }).populate('parent').exec(function (err, relations) {
+				if (err) d.reject(err);
+				else d.resolve(relations.map(function (relation) { return relation.parent; }));
+			});
+		}
+		return d.promise;
 	});
 
 	UserSchema.statics.checkPassword = function (email, pwd, callback) {
@@ -36,37 +100,54 @@ define([
 		//		MD5 hash on user's password
 		// callback: Function
 		//		Callback receives Error object or null and false or user ID as arguments
-		if (!callback) return;
+		var d = new Deferred();
 		User.findOne({email: email, confirmed: true}, '+secret', function(err, user) {
-			if (err) return callback(err);
-			if (!user) return callback(null, false, "user unknown");
-			if (user.blocked) return callback(null, false, "user blocked");
+			if (err) return d.reject(err);
+			if (!user) return d.resolve(false, "user unknown");
+			if (user.blocked) return d.resolve(false, "user blocked");
 			if (user.secret === pwd) {
 				if (user.failures) {
 					user.failures = 0;
 					user.save(function (err) {
-						user.getRoutes(callback);
+						if (err) d.reject(err);
+						else d.resolve(user);
 					});
-				} else user.getRoutes(callback);
+				} else d.resolve(user);
 			} else {
 				if (user.failures === (env.loginFailures - 1)) {
 					user.failures = 0;
 					user.blocked = true;
 				} else user.failures += 1;
 				user.save(function(err) {
-					callback(err, false, "wrong password");
+					if (err) d.reject(err);
+					else d.resolve(false, "wrong password");
 				});
 			}
 		});
+		if (callback) when(d, function (match, info) { callback(null, match, info); }, callback);
+		return d.promise;
 	};
 
+	UserSchema.methods.routes = function(hash) {
+		// summary:
+		//		method will be called by routes handler to find children for some route
+		var d = new Deferred(), router = access.router, user = this;
+		require(['server/routes/'+router.map('/' + hash)], function (route) {
+			when(route.children(user, router.params('/' + hash)), d.resolve, d.reject);
+		});
+		return d.promise;
+	};
+
+
+
+/***************************************
 	UserSchema.methods.getClientUsers = function (callback) {
 		// summary:
 		//		Generate client id indexed object containing user records
 		//		for clients, where user is admin
 		var cids = {}, user = this;
 		this.clients.forEach(function (client) {
-			if (user.admin || client.admins && client.admins.indexOf(user.id) >= 0) {
+			if (user.root || client.admins && client.admins.indexOf(user.id) >= 0) {
 				var d = cids[client.id] = new Deferred();
 				User.find({
 					clients: { $elemMatch: { id: client.id } }		// client is listed in user's clients
@@ -94,7 +175,7 @@ define([
 
 		var d = new Deferred(), user = this, res = { name: 'admin' };
 
-		if (this.admin) {
+		if (this.root) {
 			res.hash = '/admin';
 			res.access = { "get": true, "post": true };
 		} else res.noRoute = true;
@@ -104,9 +185,9 @@ define([
 			// now create clients sections
 			var admins = [];
 			// get admin users edit links
-			if (user.admin) admins.push((function(prefix) {
+			if (user.root) admins.push((function(prefix) {
 				var d = new Deferred();
-				User.find({admin: true}).exec(function(err, admins) {
+				User.find({root: true}).exec(function(err, admins) {
 					if (err) return d.reject(err);
 					var cp = [];
 					admins.forEach(function(user) {
@@ -117,7 +198,7 @@ define([
 						admins.forEach(function (user, i) {
 							children.push({
 								name: user.name + ' (' + user.email + ')',
-								hash: prefix + '/!' + user.id,
+								hash: prefix + '/' + user.id,
 								access: access[i]
 							});
 						});
@@ -167,7 +248,35 @@ define([
 		return d.promise;
 	};
 
-	UserSchema.methods.getRoutes = function (callback) {
+
+
+
+	UserSchema.methods._sortClients = function () {
+		// summary:
+		//		sort the clients according to it's role
+		//		Deferred is resolved to array of admin's ids and object of arrays of ids according to Client.roles
+		var d = new Deferred(), user = this;
+		all([user.admin, user.client]).then(function(admins, clients) {
+			var sorted = {}, i;
+			for (i=0; i<clients.length; i++) {
+				Client.roles.forEach(function (role) {
+					if (clients[i][role]) {
+						if (!sorted[role]) sorted[role] = [];
+						sorted[role].push(clients[i]);
+					}
+				});
+			}
+			d.resolve(admins, sorted);
+		}, d.reject);
+		return d.promise;
+	}
+
+
+
+
+
+
+	UserSchema.methods._getRoutes = function (d) {
 		// summary:
 		//		Generate user access object in the format of client tree
 		//		Each client route is based on some REST routes. Client routes are defined 
@@ -182,12 +291,36 @@ define([
 		//		5) for supplier create supplier tab and add PO/Stock/Staticstics based on REST/supplier/:id
 		//		6) for retailer create retailer tab and add Order/Summary/Statistics based on REST/retailer/:id
 
-		var user = this, clients;
-		User.findById(user._id, '+admin').populate('clients').exec(function (err, user) {
-			if (err) return callback(err);
+
+		if (!d) d = new Deferred();
+		var user = this, sections = [{ name: 'Profile', hash: '/profile' }];
+		// root user can administer other roots
+		if (user.root) sections.push(user.getRootSection());
+		when(user._sortClients(), function (admin, clients) {
+			Client.roles.forEach(function(role) {
+				if (clients[role])
+			});
+		}, d.reject);
+
+
+
+
+
+
+		when(user.admin, function (admins) {
+			if (admins && admins.length) sections.push()
+		}, d.reject);
+
+
+
+		User.findById(user._id, '+root').exec(function (err, user) {
+			if (err) return d.reject(err);
+
+
+
 			when((function(user) {
 				// if user is global admin collect all clients
-				if (user.admin) {
+				if (user.root) {
 					var cd = new Deferred();
 					Client.find({}, function(err, c) {
 						if (err) return cd.reject(err);
@@ -204,13 +337,13 @@ define([
 				var vendors = [], suppliers = [], retailers = [], admin = [];
 				clients.forEach(function(client) {
 					if (client.vendor) vendors.push(client);
-					if (client.supplier && client.supplier.length) suppliers.push(client);
-					if (client.retailer && client.retailer.length) retailers.push(client);
-					if (user.admin || client.admins.indexOf(user.id) >= 0) admin.push(client);
+					if (client.supplier) suppliers.push(client);
+					if (client.retailer) retailers.push(client);
+					if (user.root || client.admins.indexOf(user.id) >= 0) admin.push(client);
 				});
 				// create user's routes
 				var sections = [ { name: 'Profile', hash: '/profile' } ];
-				if (user.admin || admin.length) sections.push(user.getAdminSection(admin));
+				if (user.root || admin.length) sections.push(user.getAdminSection(admin));
 //				if (vendors.length) sections.push(user.getVendorSection(vendors));
 //				if (suppliers.length) sections.push(user.getSupplierSection(suppliers));
 //				if (retailers.length) sections.push(user.getRetailerSection(retailers));
@@ -219,9 +352,11 @@ define([
 					user.routes = { name: 'root', children: routes };
 					callback(null, user); 
 				}, callback);
-			});
+			}, d.reject);
 		});
+		return d.promise;
 	};
+****************************/
 
 	var User = mongo.model('user', UserSchema);
 	return User;

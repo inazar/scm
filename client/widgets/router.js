@@ -23,7 +23,7 @@ define([
 				showRoot: false,
 				model: this.model,
 				onClick: function (item, node) {
-					if (item.noRoute) {
+					if (!item.access) {
 						if (node.isExpanded) this._collapseNode(node);
 						else this._expandNode(node);
 					} else topic.publish('router/go', item);

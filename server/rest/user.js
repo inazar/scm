@@ -18,7 +18,8 @@ define([
 			optional: ['uid'],
 			validate: {
 				'uid': function (params, user) {
-					if (user.admin || params.uid === user.id) return true;
+					console.log("user GET validate", params.cid);
+					if (user.root || params.uid === user.id) return true;
 					return user.clients && user.clients.some(function(client) {
 						return client.admins && client.admins.some(function (cUser) {
 							return user.id === cUser.id;
@@ -41,7 +42,8 @@ define([
 			required: ['uid'],
 			validate: {
 				'uid': function (params, user) {
-					if (user.admin || params.uid === user.id) return true;
+					console.log("user PUT validate", params.cid);
+					if (user.root || params.uid === user.id) return true;
 					return user.clients && user.clients.some(function(client) {
 						return client.admins && client.admins.some(function (cUser) {
 							return user.id === cUser.id;
@@ -57,6 +59,7 @@ define([
 			},
 			validate: {
 				'': function (params, user) {
+					console.log("user POST validate");
 					return true;
 				}
 			}
@@ -69,7 +72,7 @@ define([
 			required: ['uid'],
 			validate: {
 				'uid': function (params) {
-					console.log("user validate", params.uid);
+					console.log("user DELETE validate", params.uid);
 					return true;
 				}
 			}

@@ -22,16 +22,8 @@ define([
 		 * a user is logged in before asking them to approve the request.
 		 */
 		passport.use(new local.Strategy({usernameField: 'email'}, User.checkPassword));
-		passport.serializeUser(function(user, next) { next(null, { id: user.id, routes: user.routes}); });
-		passport.deserializeUser(function(obj, next) {
-			User.findById(obj.id, '+admin').populate('clients').exec(function (err, user) {
-				if (err || !user) next(err, user);
-				else {
-					user.routes = obj.routes;
-					next(null, user);
-				}
-			});
-		});
+		passport.serializeUser(function(user, next) { next(null, { id: user.id }); });
+		passport.deserializeUser(function(obj, next) { User.findById(obj.id, next); });
 
 		/**
 		 * BasicStrategy & ClientPasswordStrategy

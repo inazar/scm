@@ -151,34 +151,33 @@ define([
 		},
 
 		allow: function(path, user, params){
-			var i, li, routeObj, result
+			var i, li, routeObj, result,
 				allow, routes = this._routes;
 
 			for(i=0, li=routes.length; i<li; ++i){
 				routeObj = routes[i];
-				result = routeObj.route.exec(path);
-				if(result) allow = allow && routeObj.fire(params || this._getParameters(routeObj), user, path);
+				if (routeObj.route.exec(path) && !(allow = routeObj.fire(params || this._getParameters(routeObj), user, path))) break;
 			}
 			return allow;
 		},
 
-		getConfig: function(path) {
+		map: function(path) {
 			var i, li, routeObj, routes = this._routes;
 
 			for(i=0, li=routes.length; i<li; ++i){
 				routeObj = routes[i];
-				if(routeObj.route.exec(path)) break;
+				if (routeObj.route.exec(path)) break;
 			}
 			return i < li ? routeObj.callbackQueue[0] : null;
 		},
 
-		getParameters: function(path) {
+		params: function(path) {
 			var i, li, routeObj, result, params, routes = this._routes;
 
 			for(i=0, li=routes.length; i<li; ++i){
 				routeObj = routes[i];
 				result = routeObj.route.exec(path);
-				if(result) {
+				if (result) {
 					params = this._getParameters(routeObj, result);
 					break;
 				}

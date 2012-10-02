@@ -9,7 +9,7 @@ define(["dojo/node!mongoose"], function (mongoose) {
 					load(mongoose.Schema);
 					break;
 				default:
-					if (mongoose.Schema[id]) load(mongoose.Schema[id]);
+					if (mongoose.Schema.Types[id]) load(mongoose.Schema.Types[id]);
 					else throw new Error("Unsupported mongoose object '"+id+"'");
 					break;
 			}

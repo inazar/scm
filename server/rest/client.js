@@ -7,11 +7,18 @@ define([
 	return {
 		"get": {
 			handler: function (req, res, next) {
-				next();
+				var id = req.params.cid;
+				if (id) {
+					Client.findById(id, function (err, client) {
+						if (err) return next(err);
+						res.send(client.toJSON());
+					});
+				} else res.send([]);
 			},
 			optional: ['cid'],
 			validate: {
 				'cid': function (params, user) {
+					console.log("client GET validate", params.cid);
 					return true;
 				}
 			}
@@ -23,6 +30,7 @@ define([
 			required: ['cid'],
 			validate: {
 				'cid': function (params, user) {
+					console.log("client PUT validate", params.cid);
 					return true;
 				}
 			}
@@ -39,6 +47,7 @@ define([
 			},
 			validate: {
 				'': function (params, user) {
+					console.log("client POST validate");
 					return true;
 				}
 			}
@@ -51,7 +60,7 @@ define([
 			required: ['cid'],
 			validate: {
 				'cid': function (params) {
-					console.log("user validate", params.cid);
+					console.log("client DELETE validate", params.cid);
 					return true;
 				}
 			}
