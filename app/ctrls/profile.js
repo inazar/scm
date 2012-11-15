@@ -3,19 +3,13 @@
 define([
 	"dojo/_base/declare",
 	"dojo/_base/config",
-	"app/ctrls/admin/user",
+	"client/widgets/profile",
 	"app/models/user"
-], function (declare, dojoConfig, User, userStore) {
+], function (declare, dojoConfig, Profile, userStore) {
 	// summary:
 	//		Declare profile page. Simply show user's page with possibility to edit data
-	return declare([User], {
-		constructor: function () {
-			if (dojoConfig.user) {
-				this.userId = dojoConfig.user;
-				this.model = userStore;
-				this.access = { "get": true, "put": true };
-				this.control.set('store', userStore);
-			}
-		}
+	return declare([Profile], {
+		_id: dojoConfig.user,
+		store: userStore
 	});
 });

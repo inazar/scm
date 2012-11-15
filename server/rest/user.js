@@ -1,7 +1,8 @@
 define([
 	"dojo/_base/declare",
+	"server/node/restify",
 	"server/classes/User"
-], function (declare, User) {
+], function (declare, restify, User) {
 	// module:
 	//		server/routes/user
 	return {
@@ -13,12 +14,12 @@ define([
 						if (err) return next(err);
 						res.send(user.toJSON());
 					});
-				} else res.send([]);
+				} else restify.extend(User, req, res, next);
 			},
 			optional: ['uid'],
 			validate: {
 				'uid': function (params, user) {
-					console.log("user GET validate", params.cid);
+					console.log("user GET validate", params.uid);
 					if (user.root || params.uid === user.id) return true;
 					return user.clients && user.clients.some(function(client) {
 						return client.admins && client.admins.some(function (cUser) {
@@ -42,7 +43,7 @@ define([
 			required: ['uid'],
 			validate: {
 				'uid': function (params, user) {
-					console.log("user PUT validate", params.cid);
+					console.log("user PUT validate", params.uid);
 					if (user.root || params.uid === user.id) return true;
 					return user.clients && user.clients.some(function(client) {
 						return client.admins && client.admins.some(function (cUser) {
@@ -54,8 +55,11 @@ define([
 		},
 		"post": {
 			handler: function (req, res, next) {
-				console.log("user post");
-				next();
+				var obj = req.body;
+				User.create(obj, function(err, user) {
+					if (err) return next(err);
+					res.send(user);
+				});
 			},
 			validate: {
 				'': function (params, user) {
@@ -66,12 +70,18 @@ define([
 		},
 		"delete": {
 			handler: function (req, res, next) {
-				console.log("user delete");
-				next();
+				var id = req.params.uid;
+				if (id) {
+					User.findByIdAndRemove(id, function(err, user) {
+						if (err) return next(err);
+						if (!user) return res.NotFound();
+						res.send(id);
+					});
+				} else res.NotFound();
 			},
 			required: ['uid'],
 			validate: {
-				'uid': function (params) {
+				'uid': function (params, user) {
 					console.log("user DELETE validate", params.uid);
 					return true;
 				}

@@ -1,1 +1,1 @@
-define({ stores: ['/user'] });
+define({ stores: ['/user'], query: { root: true } });

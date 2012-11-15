@@ -12,6 +12,7 @@ define([
 		_idProperty: '__id',
 		templates: {
 			unathorized: template,
+			index: null,
 			view: null,
 			edit: null,
 			create: null
@@ -19,7 +20,7 @@ define([
 		unathorized: {
 			message: __("You are not authorized to view this page")
 		},
-		postscript: function() {
+		postscript: function () {
 			var self = this;
 			function _getTemplate(name) { return self.templates[name] ? self.templates[name] : self.templates.unathorized; }
 			if (this.access["get"]) {

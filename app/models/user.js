@@ -1,24 +1,17 @@
 // module:
 //		app/models/user
 define([
+	"dojo/_base/lang",
+	"client/models/user",
 	"dojo/store/JsonRest",
 	"dojo/store/Observable"
-], function (JsonRest, Observable, getStateful) {
+], function (lang, User, JsonRest, Observable) {
 	// summary:
 	//		define JsonStore for user
 
-	return Observable(new JsonRest({
-		_template: {
-			email: {	// User's email
-				placeholder: "Enter email address",
-				required: true
-			},
-			name: {		// User's name
-				placeholder: "Enter user's name",
-				required: true
-			}
-		},
-		target: '/user/',
-		idProperty: '_id'
-	}));
+	return Observable(new JsonRest(lang.mixin({
+			target: '/user/',
+			idProperty: '_id',
+			sortParam: 'sort'
+		}, User)));
 });

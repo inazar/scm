@@ -7,12 +7,13 @@ define([
 	"dojo/_base/declare",
 	"dojo/when",
 	"dojo/_base/lang",
+	"dojo/hash",
 	"dojo/topic",
 	"dojo/router",
 	"dijit/tree/ObjectStoreModel",
 	"app/models/router",
 	"client/widgets/router"
-], function (__, config, require, declare, when, lang, topic, router, ObjectStoreModel, routerStore, RouterWidget) {
+], function (__, config, require, declare, when, lang, hash, topic, router, ObjectStoreModel, routerStore, RouterWidget) {
 	return declare([RouterWidget], {
 		constructor: function () {
 			var self = this;
@@ -35,7 +36,6 @@ define([
 		},
 		startup: function () {
 			var self = this, _access = {};
-			this.inherited(arguments);
 			// register routes
 			for (var route in config.routes) {
 				(function(route, controller) {
@@ -46,9 +46,9 @@ define([
 								var access = {};
 								if (_access[evt.newPath]) {
 									access = _access[evt.newPath];
-									delete _access[evt.newPath]
+									delete _access[evt.newPath];
 								}
-								topic.publish('page/render', new Page(evt.params, access));
+								topic.publish('page/render', new Page({params: evt.params, access: access}));
 							});
 						});
 					});
@@ -59,7 +59,13 @@ define([
 				_access[item.hash] = item.access;
 				router.go(item.hash);
 			});
-			router.startup();
+			when(this.select(hash()), function(item) {
+				var p = self._tree.attr('path');
+				item = p[p.length-1];
+				_access[item.hash] = item.access;
+				router.startup();
+			});
+			this.inherited(arguments);
 		}
 	});
 });

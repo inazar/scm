@@ -34,7 +34,9 @@ define([
 				request.post(config.urls.login, {
 					data: login.form.get('value')
 				}).then(function(url) {
-					win.get(login.ownerDocument).location.href = url;
+					var l = win.get(login.ownerDocument).location;
+					if (dialog) l.reload(true);
+					else l.assign(url);
 				});
 			}
 		});

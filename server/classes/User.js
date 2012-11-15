@@ -16,15 +16,14 @@ define([
 	// summary:
 	//		User database object
 	var UserSchema = new Schema({
-		root: { type: Boolean },
-		email: { type: String, index: true },   			// User's email
-		name: { type: String },					 			// User's name
+		root: { type: Boolean, select: false },
+		email: { type: String, index: {required: true, unique: true} },	// User's email
+		name: { type: String },								// User's name
 		confirmed: { type: Boolean },						// Weather user confirmed email
 		secret: { type: String, select: false },			// Password hash
 		blocked: { type: Boolean, 'default': false },		// Wheather user is blocked
 		failures: { type: Number, 'default': 0 },			// Failed login attempts
-		locale: { type: String },							// User's preferred locale
-		clients: [{ type: ObjectId, ref: 'client' }]		// reference to customers
+		locale: { type: String }							// User's preferred locale
 	});
 
 	// summary:

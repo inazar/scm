@@ -18,7 +18,6 @@ define([
 	new ErrorController().placeAt(layout.statusPane);
 	new RouterController().placeAt(layout.controlPane);
 	layout.placeAt("appLayout");
-	layout.startup();
 	topic.subscribe('page/clear', function () {
 		if (_page) _page.destroyRecursive();
 		_page = null;
@@ -27,5 +26,7 @@ define([
 		if (_page) _page.destroyRecursive();
 		_page = page;
 		layout.contentPane.set('content', page);
+//		page.startup();
 	});
+	layout.startup();
 });

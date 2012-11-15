@@ -6,12 +6,14 @@ define([
 	"dojo/_base/declare",
 	"dojo/_base/lang",
 	"dojo/on",
+	"dojo/topic",
 	"dojo/request/notify",
+	"dojo/window",
 	"client/widgets/error",
 	"client/widgets/Dialog",
 	"app/handlers/login",
 	"app/config"
-], function (__, declare, lang, on, notify, ErrorWidget, Dialog, login, config) {
+], function (__, declare, lang, on, topic, notify, win, ErrorWidget, Dialog, login, config) {
 
 	var errors = {};
 	for (var k in config.errors) errors[config.errors[k]] = k;
@@ -34,6 +36,7 @@ define([
 		//	|	}
 		_errors: [],
 		_timeout: null,
+		_message: null,
 		constructor: function (/*Object*/ kwArgs){
 			lang.mixin(this, kwArgs);
 			var self = this;
@@ -42,6 +45,7 @@ define([
 			this.inherited(arguments);
 			// monitor io start to show loaging animation or message
 			notify("start", function(res) {
+				self._message = null;
 				self.loader(true);
 				if (self._timeout) {
 					clearTimeout(self._timeout);
@@ -88,6 +92,8 @@ define([
 					dialog.show();
 				} else _displayError();
 			});
+
+			topic.subscribe("status/ok", function(msg){ self._message = msg; });
 		}
 	});
 });

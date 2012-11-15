@@ -7,9 +7,10 @@ define([
 	"dojo/promise/all",
 	"dojo/when",
 	"dojo/_base/lang",
-	"../auth/access"
-], function(fs, path, Deferred, all, when, lang, Access) {
-	return function loader(app, root, prefix, hash, parent, d) {
+	"../auth/access",
+	"./error"
+], function(fs, path, Deferred, all, when, lang, Access, error) {
+	var loader = function (app, root, prefix, hash, parent, d) {
 		prefix = prefix || ''; hash = hash || '';
 		d = d || new Deferred();
 		fs.lstat(root, function(err, stat) {
@@ -49,7 +50,7 @@ define([
 							}, required.reduce(function(prev, curr) {
 								return prev += (curr === '*' ? '/' : '/:') + curr;
 							}, '')) || '/';
-						}
+						};
 						function _processValidators(obj, parent) {
 							// summary:
 							//		Create an array of middlewares to validate request based on parameters
@@ -145,4 +146,47 @@ define([
 		});
 		return d.promise;
 	};
+
+	loader.extend = function (Model, req, res, next) {
+		var d = new Deferred(),
+			query = req.query,
+			range = req.header('Range'),
+			sort = query.sort,
+			Query, limit, count, skip;
+
+		if (sort) {
+			sort = sort.split(',').map(function (field) {
+				return (field[0] === ' ' || field[0] === '+') ? field.slice(1) : field;
+			}).join(' ');
+			delete query.sort;
+		}
+		Query = Model.find(query);
+		if (range && typeof range === "string" && (range = range.match(/items=(\d*)-(\d*)/))) {
+			range.splice(0, 1);
+			Model.count(query, function(err, c) {
+				if (err) return d.reject(err);
+				count = c;
+				if (range[0] && (skip = Number(range[0]))+1) {
+					// lower is set so expect upper
+					if (range[1] && (range[1] = Number(range[1]))) {
+						if ((limit = (range[1] - range[0] + 1)) > 0) {
+							if (sort) Query = Query.sort(sort);
+							d.resolve(Query.skip(skip).limit(limit));
+						} else d.reject(error.create('BadRequest'));
+					} else d.reject(error.create('BadRequest'));
+				} else d.reject(error.create('BadRequest'));
+			});
+		} else d.resolve(sort ? Query.sort(sort) : Query);
+		when(d, function(q) {
+			q.exec(function(err, objs) {
+				if (err) return next(err);
+				if (count) {
+					res.set('Content-Range', 'items '+skip+'-'+(skip+objs.length-1)+'/'+count);
+				}
+				res.send(objs.map(function(o) { return o.toJSON(); }));
+			});
+		}, next);
+	};
+
+	return loader;
 });

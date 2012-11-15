@@ -115,3 +115,197 @@ html, body {
 #router .dijitTreeRow {
 	width: 100%;
 }
+
+/* Data page */
+
+.controlButton span.dijitButtonNode {
+	border: 0!important;
+	background-color: transparent!important;
+	background-image: none!important;
+	box-shadow: none!important;
+	-webkit-box-shadow: none!important	;
+	-moz-box-shadow: none!important;
+	padding: 0 0 1px!important;
+}
+
+.field-controlButton {
+	border: none!important;
+	background: none!important;
+	width: 26px;
+}
+
+.sprite16 {
+	background-image     : url('img/control16.png');
+	background-color     : transparent;
+	background-repeat    : no-repeat;
+	height               : 16px;
+	width                : 16px;
+}
+
+.sprite32 {
+	background-image     : url('img/control32.png');
+	background-color     : transparent;
+	background-repeat    : no-repeat;
+	height               : 32px;
+	width                : 32px;
+}
+
+.sprite32.acceptSprite{ background-position: -32px 0; } 
+.sprite32.addSprite{ background-position: -32px -34px; } 
+.sprite32.add_favSprite{ background-position: -32px -68px; } 
+.sprite32.add_userSprite{ background-position: -32px -102px; } 
+.sprite32.alertSprite{ background-position: -32px -136px; } 
+.sprite32.billboardSprite{ background-position: -32px -170px; } 
+.sprite32.cancelSprite{ background-position: -32px -204px; } 
+.sprite32.chatSprite{ background-position: -32px -238px; } 
+.sprite32.closeSprite{ background-position: -32px -272px; } 
+.sprite32.communicateSprite{ background-position: -32px -306px; } 
+.sprite32.copySprite{ background-position: -32px -340px; } 
+.sprite32.cutSprite{ background-position: -32px -374px; } 
+.sprite32.deleteSprite{ background-position: -32px -408px; } 
+.sprite32.delete_userSprite{ background-position: -32px -442px; } 
+.sprite32.editSprite{ background-position: -32px -476px; } 
+.sprite32.faqSprite{ background-position: -32px -510px; } 
+.sprite32.favSprite{ background-position: -32px -544px; } 
+.sprite32.fileSprite{ background-position: -32px -578px; } 
+.sprite32.file_addSprite{ background-position: -32px -612px; } 
+.sprite32.file_deleteSprite{ background-position: -32px -646px; } 
+.sprite32.file_editSprite{ background-position: -32px -680px; } 
+.sprite32.file_infoSprite{ background-position: -32px -714px; } 
+.sprite32.flagSprite{ background-position: -32px -748px; } 
+.sprite32.folderSprite{ background-position: -32px -782px; } 
+.sprite32.folder_addSprite{ background-position: -32px -816px; } 
+.sprite32.folder_alertSprite{ background-position: -32px -850px; } 
+.sprite32.folder_deleteSprite{ background-position: -32px -884px; } 
+.sprite32.folder_favSprite{ background-position: -32px -918px; } 
+.sprite32.folder_infoSprite{ background-position: -32px -952px; } 
+.sprite32.homeSprite{ background-position: -32px -986px; } 
+.sprite32.infoSprite{ background-position: -32px -1020px; } 
+.sprite32.keySprite{ background-position: -32px -1054px; } 
+.sprite32.lockSprite{ background-position: -32px -1088px; } 
+.sprite32.login_inSprite{ background-position: -32px -1122px; } 
+.sprite32.login_outSprite{ background-position: -32px -1156px; } 
+.sprite32.paperclipSprite{ background-position: -32px -1190px; } 
+.sprite32.pasteSprite{ background-position: -32px -1224px; } 
+.sprite32.percentSprite{ background-position: -32px -1258px; } 
+.sprite32.poolsSprite{ background-position: -32px -1292px; } 
+.sprite32.prohibitSprite{ background-position: -32px -1326px; } 
+.sprite32.refreshSprite{ background-position: -32px -1360px; } 
+.sprite32.remove_favSprite{ background-position: -32px -1394px; } 
+.sprite32.rulerSprite{ background-position: -32px -1428px; } 
+.sprite32.saveSprite{ background-position: -32px -1462px; } 
+.sprite32.searchSprite{ background-position: -32px -1496px; } 
+.sprite32.shoppingbagSprite{ background-position: -32px -1530px; } 
+.sprite32.shoppingcartSprite{ background-position: -32px -1564px; } 
+.sprite32.star_emptySprite{ background-position: -32px -1598px; } 
+.sprite32.star_fullSprite{ background-position: -32px -1632px; } 
+.sprite32.star_half_fullSprite{ background-position: -32px -1666px; } 
+.sprite32.telephoneSprite{ background-position: -32px -1700px; } 
+.sprite32.toolsSprite{ background-position: -32px -1734px; } 
+.sprite32.unlockSprite{ background-position: -32px -1768px; } 
+.sprite32.userSprite{ background-position: -32px -1802px; } 
+.sprite32.usersSprite{ background-position: -32px -1836px; } 
+.sprite32.wheelSprite{ background-position: -32px -1870px; } 
+.sprite32.wheelsSprite{ background-position: -32px -1904px; } 
+.sprite32.wrenchSprite{ background-position: -32px -1938px; } 
+.sprite32.zoom_inSprite{ background-position: -32px -1972px; } 
+.sprite32.zoom_outSprite{ background-position: -32px -2006px; } 
+
+.sprite16.acceptSprite{ background-position: -16px 0; } 
+.sprite16.addSprite{ background-position: -16px -18px; } 
+.sprite16.add_favSprite{ background-position: -16px -36px; } 
+.sprite16.add_userSprite{ background-position: -16px -54px; } 
+.sprite16.alertSprite{ background-position: -16px -72px; } 
+.sprite16.billboardSprite{ background-position: -16px -90px; } 
+.sprite16.cancelSprite{ background-position: -16px -108px; } 
+.sprite16.chatSprite{ background-position: -16px -126px; } 
+.sprite16.closeSprite{ background-position: -16px -144px; } 
+.sprite16.communicateSprite{ background-position: -16px -162px; } 
+.sprite16.copySprite{ background-position: -16px -180px; } 
+.sprite16.cutSprite{ background-position: -16px -198px; } 
+.sprite16.deleteSprite{ background-position: -16px -216px; } 
+.sprite16.delete_userSprite{ background-position: -16px -234px; } 
+.sprite16.editSprite{ background-position: -16px -252px; } 
+.sprite16.faqSprite{ background-position: -16px -270px; } 
+.sprite16.favSprite{ background-position: -16px -288px; } 
+.sprite16.fileSprite{ background-position: -16px -306px; } 
+.sprite16.file_addSprite{ background-position: -16px -324px; } 
+.sprite16.file_deleteSprite{ background-position: -16px -342px; } 
+.sprite16.file_editSprite{ background-position: -16px -360px; } 
+.sprite16.file_infoSprite{ background-position: -16px -378px; } 
+.sprite16.flagSprite{ background-position: -16px -396px; } 
+.sprite16.folderSprite{ background-position: -16px -414px; } 
+.sprite16.folder_addSprite{ background-position: -16px -432px; } 
+.sprite16.folder_alertSprite{ background-position: -16px -450px; } 
+.sprite16.folder_deleteSprite{ background-position: -16px -468px; } 
+.sprite16.folder_favSprite{ background-position: -16px -486px; } 
+.sprite16.folder_infoSprite{ background-position: -16px -504px; } 
+.sprite16.homeSprite{ background-position: -16px -522px; } 
+.sprite16.infoSprite{ background-position: -16px -540px; } 
+.sprite16.keySprite{ background-position: -16px -558px; } 
+.sprite16.lockSprite{ background-position: -16px -576px; } 
+.sprite16.login_inSprite{ background-position: -16px -594px; } 
+.sprite16.login_outSprite{ background-position: -16px -612px; } 
+.sprite16.paperclipSprite{ background-position: -16px -630px; } 
+.sprite16.pasteSprite{ background-position: -16px -648px; } 
+.sprite16.percentSprite{ background-position: -16px -666px; } 
+.sprite16.poolsSprite{ background-position: -16px -684px; } 
+.sprite16.prohibitSprite{ background-position: -16px -702px; } 
+.sprite16.refreshSprite{ background-position: -16px -720px; } 
+.sprite16.remove_favSprite{ background-position: -16px -738px; } 
+.sprite16.rulerSprite{ background-position: -16px -756px; } 
+.sprite16.saveSprite{ background-position: -16px -774px; } 
+.sprite16.searchSprite{ background-position: -16px -792px; } 
+.sprite16.shoppingbagSprite{ background-position: -16px -810px; } 
+.sprite16.shoppingcartSprite{ background-position: -16px -828px; } 
+.sprite16.star_emptySprite{ background-position: -16px -846px; } 
+.sprite16.star_fullSprite{ background-position: -16px -864px; } 
+.sprite16.star_half_fullSprite{ background-position: -16px -882px; } 
+.sprite16.telephoneSprite{ background-position: -16px -900px; } 
+.sprite16.toolsSprite{ background-position: -16px -918px; } 
+.sprite16.unlockSprite{ background-position: -16px -936px; } 
+.sprite16.userSprite{ background-position: -16px -954px; } 
+.sprite16.usersSprite{ background-position: -16px -972px; } 
+.sprite16.wheelSprite{ background-position: -16px -990px; } 
+.sprite16.wheelsSprite{ background-position: -16px -1008px; } 
+.sprite16.wrenchSprite{ background-position: -16px -1026px; } 
+.sprite16.zoom_inSprite{ background-position: -16px -1044px; } 
+.sprite16.zoom_outSprite{ background-position: -16px -1062px; } 
+
+.dijitDisabled .sprite16 {
+	background-position-x: 0;
+}
+
+.dijitDisabled .sprite32 {
+	background-position-x: 0;
+}
+
+.field-controlButton .sprite16{
+	background-position-x: 0; 
+}
+
+.field-controlButton:hover .sprite16 {
+	background-position-x: -16px; 
+}
+
+.dgrid {
+	height: 99%!important;
+}
+
+.dgrid-modified {
+	background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAIUlEQVQIHWP4//8/w38GBkkwDWSjcEASDDAZmCqIAJIWABtlJlh2uT/NAAAAAElFTkSuQmCC);
+}
+
+.dgrid-newrow {
+	background-color: #90EE90;
+}
+
+.dgrid-deleted td {
+	background-color: gray;
+}
+
+.dgrid-deleted .sprite16 {
+	background-position-y: -720px;
+}
+
+

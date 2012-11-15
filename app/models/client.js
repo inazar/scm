@@ -15,6 +15,7 @@ define([
 			}
 		},
 		target: '/client/',
-		idProperty: '_id'
+		idProperty: 'id',
+		sortParam: 'sort'
 	}));
 });
