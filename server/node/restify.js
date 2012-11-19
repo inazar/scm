@@ -55,7 +55,7 @@ define([
 							// summary:
 							//		Create an array of middlewares to validate request based on parameters
 							// obj: Object
-							//		This object shall contain a method handler, arrays of required and 
+							//		This object shall contain a method handler, arrays of required and
 							//		optional parameters and validation code per object. Validation code shall
 							//		return either boolean or promise
 							// parent: Array?
@@ -118,7 +118,7 @@ define([
 									});
 									if (rest.skip) access.skip = rest.skip;
 									filePromises[file].resolve(access, _getParams);
-								});							
+								});
 							});
 						}, d.reject);
 						all(filePromises).then(function () { d.resolve({ name: "root", children: children }); }, d.reject);
@@ -147,7 +147,7 @@ define([
 		return d.promise;
 	};
 
-	loader.extend = function (Model, req, res, next) {
+	loader.extend = function (Model, restrict, req, res, next) {
 		var d = new Deferred(),
 			query = req.query,
 			range = req.header('Range'),
@@ -161,6 +161,14 @@ define([
 			delete query.sort;
 		}
 		Query = Model.find(query);
+		if (restrict) {
+			if (restrict.length) Query = Query.where("id")['in'](restrict);
+			else {
+				Object.keys(restrict).forEach(function (key) {
+					Query = Query.where(key)['in'](restrict[key]);
+				});
+			}
+		}
 		if (range && typeof range === "string" && (range = range.match(/items=(\d*)-(\d*)/))) {
 			range.splice(0, 1);
 			Model.count(query, function(err, c) {

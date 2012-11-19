@@ -8,9 +8,10 @@ define([
 	"dojo/Deferred",
 	"dojo/when",
 	"dojo/promise/all",
+	"dojo/_base/lang",
 	"../node/router",
 	"app/config"
-], function (Deferred, when, all, Router, config) {
+], function (Deferred, when, all, lang, Router, config) {
 	var routes = config.routes, route, clientRouter = new Router();
 
 	for(route in routes) {
@@ -41,7 +42,7 @@ define([
 			var self = this, promises = {}, d = new Deferred(), routers = this.routers, method;
 
 			require(['server/routes/'+clientRouter.map(route)], function(r) {
-				var stores = r.stores || [];
+				var stores = r.stores || [], method;
 				for (method in routers) {
 					promises[method] = (function (m) {
 						var asd = new Deferred(), sds = [];

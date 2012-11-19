@@ -65,7 +65,8 @@ define({
 		ServiceUnavailable: 503
 	},
 	routes: {
-		// manage current user
+		'/client/:role/:cid': 'client',
+		'/client/:role': 'client',
 		'/profile': 'profile',
 		'/admin/user': 'admin/user',
 		'/admin/vendor': 'admin/vendor',

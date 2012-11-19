@@ -25,7 +25,7 @@ define([
 			if (!this.store && !params.store) throw new Error("StoreEdit requires application model to work with");
 			this.params = params.params || null;
 			this.access = params.access || {};
-			this.query = params.query || null;
+			if (!this.query) this.query = {};
 			this.idParam = null;
 			this.control = null;
 		},
@@ -33,13 +33,22 @@ define([
 			// summary:
 			//		By now idParam and params are set so let's define the main id
 			//		and move other properties to the query
-			if (this.params && this.idParam && this.params[this.idParam]) {
-				this._id = this.params[this.idParam];
-				this.query = lang.mixin(this.query ? this.query : {}, this.params);
-				delete this.query[this.idParam];
+			this.authorized = this.access["get"];
+			if (this.authorized) {
+				if (this.params && this.idParam && this.params[this.idParam]) {
+					this._id = this.params[this.idParam];
+					this.query = lang.mixin(this.query ? this.query : {}, this.params);
+					delete this.query[this.idParam];
+				}
+				var control = this.control = new StoreRefController({store: this.store});
+
+				// initialize the model
+				if (this._id) this._load = this.control.getStore(this._id);
+				else {
+					control.set(control._refSourceModelProp, getStateful(this.query, control.getStatefulOptions));
+					this._load = true;
+				}
 			}
-			this.control = new StoreRefController({store: this.store});
-			this._load = this.control.getStore(this._id);
 			this.inherited(arguments);
 		},
 		queryStore: function(query, options){

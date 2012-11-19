@@ -22,24 +22,26 @@ define([
 	var ClientSchema = new Schema({
 		name: { type: String, unique: true },
 		secret: { type: String, select: false },
-		role: Mixed,	// client's role in the format { vendor: Boolean, supplier: Boolean, retailer: Boolean }
+		role: { vendor: Boolean, supplier: Boolean, retailer: Boolean },	// client's role in the format { vendor: Boolean, supplier: Boolean, retailer: Boolean }
 		// convenience methods to get/set Relation
 		//		return Deferred which is resolved when an array is ready
-		parent: Mixed,	// client's parents in the format { vendor: Promise, supplier: Promise }
-		child: Mixed	// client's children in the format { supplier: Promise, retailer: Promise }
+		parent: Mixed,	// client's parents in the format { vendor: Promise, supplier: Promise, admin: Promise, user: Promise }
+		child: Mixed	// client's children in the format { supplier: Promise, retailer: Promise, admin: Promise, user: Promise }
+		// parents: Array of Client
+		// children: Array of Client
 	});
 
 	function _verifyId (id, Obj) {
-		var id = new Deferred();
-		if (id instanceof Obj) id.resolve(id._id);
+		var d = new Deferred();
+		if (id instanceof Obj) d.resolve(id._id);
 		else if (id instanceof ObjectId || typeof id === "string" || id instanceof String) {
 			Obj.findById(id).exec(function (err, obj) {
-				if (err) return id.reject(err);
-				if (!obj) id.reject(new Error("cannot relate to inexistent "+Obj.name));
-				else id.resolve(obj._id);
+				if (err) return d.reject(err);
+				if (!obj) d.reject(new Error("cannot relate to inexistent "+Obj.name));
+				else d.resolve(obj._id);
 			});
-		} else id.reject(new Error("relation requires "+Obj.name+" object or ObjectId"));
-		return id;
+		} else d.reject(new Error("relation requires "+Obj.name+" object or ObjectId"));
+		return d;
 	}
 
 	// summary:
@@ -76,6 +78,20 @@ define([
 			}, d.reject);
 			return d.promise;
 		});
+
+		['parent', 'child'].forEach(function(direction) {
+			ClientSchema.virtual(direction+'.'+role).get(function() {
+				var d = Deferred();
+				Relation.find({child: this._id}, direction, function(err, crel) {
+					if (err) return d.reject(err);
+					Relation.find({role: role}, 'user').where(direction)['in'](crel.map(function(r) { return r[direction]; })).exec(function(err, uRel) {
+						if (err) return d.reject(err);
+						d.resolve(uRel.map(function (r) { return r.user; }));
+					});
+				});
+				return d.promise;
+			});
+		});
 	});
 
 	// summary:
@@ -94,6 +110,24 @@ define([
 		err.name = name;
 		return err;
 	}
+	// call client.parents or client.children
+	// to get an array of parents or children - full Client object
+	ClientSchema.virtual('parents').get(function() {
+		var d = Deferred();
+		Relation.find({child: this.id}).populate('parent').exec(function(err, rel) {
+			if (err) d.reject(err);
+			else d.resolve(rel.map(function(r) { return r.parent; }));
+		});
+		return d.promise;
+	});
+	ClientSchema.virtual('children').get(function() {
+		var d = Deferred();
+		Relation.find({parent: this.id}).populate('child').exec(function(err, rel) {
+			if (err) d.reject(err);
+			else d.resolve(rel.map(function(r) { return r.child; }));
+		});
+		return d.promise;
+	});
 
 	// call supplier.parent.vendor or retailer.parent.supplier
 	// to get an array of parents or add the new one (by assignment)
@@ -179,6 +213,34 @@ define([
 		});
 	});
 
+	var _safe = [], _root = [];
+	Object.keys(ClientSchema.paths).forEach(function(key) {
+		var o = ClientSchema.paths[key].options;
+		if (!o.auto) {
+			_root.push(key);
+			if (o.select !== false) _safe.push(key);
+		}
+	});
+
+	ClientSchema.statics.filter = function(raw, root) {
+		var obj = {}, i, key, sf = root ? _root : _safe;
+		for (i=0; i<sf.length; i++) {
+			key = sf[i];
+			if (raw[key]) obj[key] = raw[key];
+		}
+		return obj;
+	};
+
+	ClientSchema.statics.isRole = function (role) {
+		return roles.indexOf(role) >= 0;
+	};
+
+	ClientSchema.methods.canCreate = function (role) {
+		var i = roles.indexOf(role);
+		if (i <= 0) return false;
+		return this[roles[i-1]];
+	};
+
 	ClientSchema.methods.isAdmin = function (uid, callback) {
 		var d = new Deferred(), self = this;
 		when(_verifyId, function (uid) {
@@ -189,7 +251,7 @@ define([
 		}, d.reject);
 		if (callback) when(d, function (isAdmin) { callback(null, isAdmin); }, callback);
 		return d.promise;
-	}
+	};
 
 	ClientSchema.statics.checkSecret = function (name, secret, callback) {
 		// summary:

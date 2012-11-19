@@ -21,6 +21,10 @@ define([
 			if (!this.store && !params.store) throw new Error("GridEdit requires application model to work with");
 			this.access = params.access || {};
 			if (!this.query) this.query = {};
+		},
+		postscript: function () {
+			this.authorized = this.access["get"];
+			this.inherited(arguments);
 		}
 	});
 });

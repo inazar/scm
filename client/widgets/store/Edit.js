@@ -27,14 +27,12 @@ define([
 			this.templateString = template;
 		},
 		postscript: function () {
-			if (!this.access["get"]) this.templateString = unauthorized;
-			if (!this._id) {
-				this.templateString = "<div></div>";
-				topic.publish("status/error", {message: "Cannot identify the row to edit"});
-			}
+			if (!this.authorized) this.templateString = unauthorized;
 			this.inherited(arguments);
 		},
 		startup: function () {
+			if (!this.authorized) return this.inherited(arguments);
+
 			var self = this, args = arguments;
 
 			// run trough the fields definitions and place each field in the table potentially with editor
@@ -76,7 +74,7 @@ define([
 
 			var _watch = true;
 			function _revertButton () {
-				if (!self._buttons['revert']) {
+				if (!self._buttons['revert'] && self._id) {
 					self._buttons['revert'] = new Btn({
 						title: "Revert",
 						disabled: true,

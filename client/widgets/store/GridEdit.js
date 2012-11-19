@@ -35,10 +35,12 @@ define([
 			this.templateString = template;
 		},
 		postscript: function () {
-			if (!this.access["get"]) this.templateString = unauthorized;
+			if (!this.authorized) this.templateString = unauthorized;
 			this.inherited(arguments);
 		},
 		startup: function() {
+			if (!this.authorized) return this.inherited(arguments);
+
 			var self = this;
 
 			var _actions = {

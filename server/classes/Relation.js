@@ -18,9 +18,9 @@ define([
 		//	client <-> user
 		//		user, admin
 		role: { type: String, index: true, required: true }, // the parent's role
-		parent: { type: ObjectId, ref: 'client', index:true, required: true },
-		child: { type: ObjectId, ref: 'client', index:true },
-		user: { type: ObjectId, ref: 'user', index:true }
+		parent: { type: ObjectId, ref: 'client', index: true, required: true },
+		child: { type: ObjectId, ref: 'client', index: true },
+		user: { type: ObjectId, ref: 'user', index: true }
 	});
 
 	RelationSchema.pre('save', function (next) {

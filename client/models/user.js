@@ -13,7 +13,7 @@ define([
 				field: 'name',
 				label: 'Name',
 				editor: ValidationTextBox,
-				//editOn: 'dblclick',
+				editOn: 'dblclick',
 				editorArgs: {
 					required: true
 				}
