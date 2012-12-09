@@ -89,7 +89,7 @@ define([
 												handler.push(function (req, res, next) {
 													var promises = [];
 													validators.forEach(function (validator) {
-														promises.push(validator(req.params, req.user));
+														promises.push(validator(req.params, req.user, app.get('env') === "development"));
 													});
 													all(promises).then(function (data) {
 														// proceed only if all checks are fulfilled
@@ -102,7 +102,7 @@ define([
 												Access.routers[m].register(route, function (evt) {
 													var promises = [], vd = new Deferred();
 													validators.forEach(function (validator) {
-														promises.push(validator(evt.params, evt.user));
+														promises.push(validator(evt.params, evt.user, app.get('env') === "development"));
 													});
 													all(promises).then(function (valids) {
 														vd.resolve(valids.every(function(valid) { return valid; }));
@@ -114,7 +114,9 @@ define([
 
 											if (obj.handler) handler.push(lang.hitch(rest, obj.handler));
 											if (handler.length) {
-												utils.info('#bold['+m.toUpperCase()+'] '+route.replace(/:(\w+)/g, '#blue[:]#cyan[$1]').replace(/(\?|\*)/g, '#yellow[$1]'));
+												if (app.get('env') === "development") {
+													utils.info('#bold['+m.toUpperCase()+'] '+route.replace(/:(\w+)/g, '#blue[:]#cyan[$1]').replace(/(\?|\*)/g, '#yellow[$1]'));
+												}
 												app[m](route, handler);
 											}
 										}

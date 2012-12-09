@@ -13,7 +13,7 @@ define([
 	// module:
 	//		server/routes/user
 
-	function validator (method, params, user) {
+	function validator (method, params, user, log) {
 		// summary:
 		//		Validate request based on input params for user store
 		//	description:
@@ -30,13 +30,13 @@ define([
 		//	user: User Currently logged in user
 
 		// root user can see everything, user can see himself
-		if (user.root || params.uid && params.uid === user.id) return utils.validate('user', method, params, user, true);
+		if (user.root || params.uid && params.uid === user.id) return utils.validate('user', method, params, user, true, log);
 		if (!params.pid ||										// user is not root so pid must be provided
 			!params.role ||										// role must be provided
 			!Client.isRole(params.role)							// role value must be valid
-			) return utils.validate('user', method, params, user, false); // invalid!
+			) return utils.validate('user', method, params, user, false, log); // invalid!
 		// now user can see others only if this user is admin of the parent
-		return utils.validate('user', method, params, user, Relation.is("admin", params.pid, user.id));
+		return utils.validate('user', method, params, user, Relation.is("admin", params.pid, user.id), log);
 	}
 
 	return {

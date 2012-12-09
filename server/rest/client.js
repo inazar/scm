@@ -12,7 +12,7 @@ define([
 	// module:
 	//		server/routes/client
 	
-	function validator (method, child, params, user) {
+	function validator (method, child, params, user, log) {
 		// summary:
 		//		Validate request based on input params for client store
 		//	description:
@@ -30,7 +30,7 @@ define([
 		//	user: User Currently logged in user
 
 		// root can do what he wants
-		if (user.root) return utils.validate('client', method, params, user, true);
+		if (user.root) return utils.validate('client', method, params, user, true, log);
 		
 		
 		if (!params.pid ||										// user is not root so pid must be provided
@@ -38,7 +38,7 @@ define([
 			!Client.isRole(params.role) ||						// role value must be valid
 			(!params.cid && Client.lastRole(params.role)) ||	// last role has no children
 			(child && !params.cid)								// child is true and no cid provided
-			) return utils.validate('client', method, params, user, false); // invalid!
+			) return utils.validate('client', method, params, user, false, log); // invalid!
 		// now user is not root and pid, role are provided
 		var d = new Deferred();
 		// check if user is admin or parent
@@ -46,7 +46,7 @@ define([
 		// or admin of client if client known
 		if (params.cid) check.user = Relation.is('admin', params.cid, user.id);
 		all(check).then(function(res) { d.resolve(res.user || res.parent); }, d.reject);
-		return utils.validate('client', method, params, user, d.promise);
+		return utils.validate('client', method, params, user, d.promise, log);
 	}
 
 	return {

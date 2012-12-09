@@ -1,7 +1,8 @@
 define([
+	"app/main",
 	"dojo/node!util",
 	"dojo/when"
-], function (util, when) {
+], function (app, util, when) {
 	return {
 		ansicodes: {
 			'reset': '\033[0m',
@@ -72,12 +73,14 @@ define([
 		error: function () {
 			this._forward("error", arguments);
 		},
-		validate: function(path, method, params, user, result) {
-			var self = this, p = {}, i;
-			for (i in params) p[i] = params[i];
-			when(result, function (res) {
-				self.info("#yellow[VALIDATE](#"+(res ? "green" : "red")+"[\u25CF]) #cyan[/%s]: #bold[%s] for #green['%s'], params: %s", path, method, user.id, util.inspect(params, false, 3, true).replace(/\n/g,""));
-			});
+		validate: function(path, method, params, user, result, log) {
+			if (log) {
+				var self = this, p = {}, i;
+				for (i in params) p[i] = params[i];
+				when(result, function (res) {
+					self.info("#yellow[VALIDATE](#"+(res ? "green" : "red")+"[\u25CF]) #cyan[/%s]: #bold[%s] for #green['%s'], params: %s", path, method, user.id, util.inspect(params, false, 3, true).replace(/\n/g,""));
+				});
+			}
 			return result;
 		}
 	};

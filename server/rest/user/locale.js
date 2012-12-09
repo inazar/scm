@@ -11,7 +11,7 @@ define([
 			handler: function (req, res, next) {
 				var id = req.body && req.body.id, user = req.user;
 				if (!user) return next(error.Unauthorized());
-				if (!id || !(id in config.locales)) return next(error.BadRequest("unknown language"));
+				if (!id || !(id in config.locales)) return res.BadRequest();
 				user.locale = id;
 				user.save(function(err) {
 					if (err) next(err);
