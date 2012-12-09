@@ -2,17 +2,21 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title></title>
+    <title><% if (typeof title !== "undefined") { %><%- title %><% } %></title>
     <script>
-        var dojoConfig = {
+        var dojoConfig = {<% if (typeof root !== "undefined" && !root) { %>
+            root: true,<% } %><% if (typeof email !== "undefined") { %>
+            email: <%- JSON.stringify(email) %>,<% } %><% if (typeof code !== "undefined") { %>
+            code: <%- JSON.stringify(code) %>,<% } %><% if (typeof flash !== "undefined") { %>
+            flash: <%- JSON.stringify(flash) %>,<% } %>
+            csrf: <% if (typeof csrf !== "undefined") { %><%- JSON.stringify(csrf) %><% } else { %>null<% } %>,
             locale: <% if (typeof locale !== "undefined") { %><%- JSON.stringify(locale) %><% } else { %>'ru-ru'<% } %>,
-            user:  <% if (typeof user !== "undefined") { %><%- JSON.stringify(user) %><% } else { %>null<% } %>,
-            client: <% if (typeof client !== "undefined") { %><%- JSON.stringify(client) %><% } else { %>null<% } %>
+            user:  <% if (typeof user !== "undefined") { %><%- JSON.stringify(user) %><% } else { %>null<% } %>
         };
     </script>
 </head>
 <body class="claro">
-    <div id="appLayout"><%- body %></div>
+    <div id="appLayout"><% if (typeof body !== "undefined") { %><%- body %><% } %></div>
     <!-- dojo.js is an AMD-compliant loader script. It accepts configuration either from a data-dojo-config attribute,
          as shown here, from a global dojoConfig object (which must be defined *before* dojo.js is loaded), or from
          a global require object.

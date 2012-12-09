@@ -6,5 +6,16 @@ define({
 	},
 	"logo": "logo",
 	"title": "title",
-	"logout": "Выход"
+	"logout": "Выход",
+	"yes": "да",
+	"no": "нет",
+	"You are not authorized to view this page": "Вы не можете просматривать эту страницу",
+
+	"profile": "Профиль",
+	"admin": "Админ",
+	"admins": "Администраторы",
+	"users": "Пользователи",
+	"vendors": "Производители",
+	"suppliers": "Поставщики",
+	"retailers": "Продавцы"
 });

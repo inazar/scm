@@ -18,12 +18,12 @@ define([
 			//			query: additional query parameters
 
 			// This object works only with application models
-			if (!this.store && !params.store) throw new Error("GridEdit requires application model to work with");
 			this.access = params.access || {};
+			this.authorized = this.access["get"];
 			if (!this.query) this.query = {};
 		},
 		postscript: function () {
-			this.authorized = this.access["get"];
+			if (!this.store && !params.store) throw new Error("GridEdit requires application model to work with");
 			this.inherited(arguments);
 		}
 	});

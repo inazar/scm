@@ -37,6 +37,7 @@ define([
 		_errors: [],
 		_timeout: null,
 		_message: null,
+		_warning: null,
 		constructor: function (/*Object*/ kwArgs){
 			lang.mixin(this, kwArgs);
 			var self = this;
@@ -45,12 +46,11 @@ define([
 			this.inherited(arguments);
 			// monitor io start to show loaging animation or message
 			notify("start", function(res) {
-				self._message = null;
 				self.loader(true);
 				if (self._timeout) {
 					clearTimeout(self._timeout);
 					self._timeout = null;
-				} else self._errors = [];
+				}
 			});
 			// monitor io stop to stop loading and show status - error or Ok
 			notify("stop", function(res) {
@@ -59,6 +59,9 @@ define([
 					self._timeout = null;
 					if (!self._errors.length) self.ok();
 					else self.error(self._errors[0]);
+					self._message = null;
+					self._warning = null;
+					self._errors = [];
 				}, 750);
 			});
 			// monitor io errors
@@ -94,6 +97,7 @@ define([
 			});
 
 			topic.subscribe("status/ok", function(msg){ self._message = msg; });
+			topic.subscribe("status/error", function(msg){ self._errors.push({name: msg, message: ''}); });
 		}
 	});
 });

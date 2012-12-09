@@ -1,0 +1,1 @@
+define(["server/rest/client"], function (Client) { return Client; });

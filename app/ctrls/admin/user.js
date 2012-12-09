@@ -1,14 +1,15 @@
 // module:
-//		app/ctrls/admin/user
+//		app/ctrls/admin/admin
 define([
+	"dojo/i18n!app/nls/user",
 	"dojo/_base/declare",
-	"client/widgets/admin/user",
-	"app/models/user"
-], function (declare, User, userStore) {
+	"app/ctrls/store/GridEdit",
+	"app/models/admin/user"
+], function (nls, declare, User, userStore) {
 	// summary:
-	//		Declare client admin page
+	//		Declare user page
 	return declare([User], {
-		store: userStore,
-		query: {root: true}
+		nls: nls,
+		store: userStore
 	});
 });

@@ -1,1 +1,0 @@
-define({ stores: ['/user'], query: { client: true } });

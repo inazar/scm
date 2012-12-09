@@ -38,7 +38,7 @@ define([
 	SessionStore.prototype.__proto__ = Store.prototype;
 
 	SessionStore.prototype.reap = function(ms) {
-		var thresh = Number(new Date(Number(new Date) - ms));
+		var thresh = Number(new Date(Number(new Date()) - ms));
 		Session.remove({ access : { "$lt" : thresh }}, function(err) {
 			if (err) util.error("Failed to clean up sessions:", err.message);
 		});
@@ -68,6 +68,22 @@ define([
 
 	SessionStore.prototype.destroy = function(sid, callback) {
 		Session.remove({ _sid: sid }, callback);
+	};
+
+	SessionStore.prototype.all = function(callback){
+		var arr = [];
+		Session.find({}, function(err, sess) {
+			if (err) callback(err);
+			else callback(null, sess.map(function(s) { return s.data; }));
+		});
+	};
+
+	SessionStore.prototype.clear = function(callback){
+		Session.find().remove(callback);
+	};
+
+	SessionStore.prototype.length = function(callback){
+		Session.find().count(callback);
 	};
 
 	return SessionStore;

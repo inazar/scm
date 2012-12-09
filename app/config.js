@@ -20,6 +20,14 @@ define({
 	//		The locale to use as default
 	defaultLocale: 'ru-ru',
 
+	// sid: String
+	//		Session cookie name
+	sid: "sid",
+
+	// csrf: String
+	//		csrf token cookie name
+	csrf: "csrf",
+
 	// urls: Object
 	//		application urls
 	urls: {
@@ -30,6 +38,14 @@ define({
 		// login: String
 		//		Login URL
 		login: '/login',
+
+		// reset: String
+		//		Reset URL
+		reset: '/login/reset',
+
+		// confirm: String
+		//		Confirm URL
+		confirm: '/confirm',
 
 		// logout: String
 		//		Logout URL
@@ -65,12 +81,17 @@ define({
 		ServiceUnavailable: 503
 	},
 	routes: {
-		'/client/:role/:cid': 'client',
-		'/client/:role': 'client',
-		'/profile': 'profile',
+		'/parent/:role/:pid/client/:cid': 'parent/client',
+		'/parent/:role/:pid/client': 'parent/client',
+		'/parent/:role/:pid/user/:uid': 'parent/user',
+		'/parent/:role/:pid/user': 'parent/user',
+		'/parent/:role/:pid': 'parent',
+		'/parent/:role': 'parent',
+		'/admin/client': 'admin/client',
 		'/admin/user': 'admin/user',
-		'/admin/vendor': 'admin/vendor',
+		'/admin/admin': 'admin/admin',
 		'/admin': 'admin',
-		'/': 'root'
+		'/profile': 'profile',	// current user's profile
+		'/': 'root' // Root page
 	}
 });

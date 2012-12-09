@@ -26,7 +26,6 @@ define([
 		if (_page) _page.destroyRecursive();
 		_page = page;
 		layout.contentPane.set('content', page);
-//		page.startup();
 	});
 	layout.startup();
 });

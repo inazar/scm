@@ -35,6 +35,14 @@ define(["dojo/node!path", "app/config"], function(path, config) {
 		//		Login URL
 		login: urls.login,
 
+		// confirm: String
+		//		Confirm URL
+		confirm: urls.confirm,
+
+		// reset: String
+		//		Reset URL
+		reset: urls.reset,
+
 		// logout: String
 		//		Logout URL
 		logout: urls.logout,

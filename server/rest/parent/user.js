@@ -1,0 +1,1 @@
+define(["server/rest/user"], function (User) { return User; });

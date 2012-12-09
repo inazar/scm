@@ -6,5 +6,16 @@ define({
 	},
 	"logo": "logo",
 	"title": "title",
-	"logout": "Вихід"
+	"logout": "Вихід",
+	"yes": "так",
+	"no": "ні",
+	"You are not authorized to view this page": "Ви не можете переглядати цю сторінку",
+
+	"profile": "Профіль",
+	"admin": "Адмін",
+	"admins": "Адміністратори",
+	"users": "Користувачі",
+	"vendors": "Виробники",
+	"suppliers": "Постачальники",
+	"retailers": "Продавці"
 });

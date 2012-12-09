@@ -24,13 +24,15 @@ define([
 		secret: { type: String, select: false },			// Password hash
 		blocked: { type: Boolean, 'default': false },		// Wheather user is blocked
 		failures: { type: Number, 'default': 0 },			// Failed login attempts
-		locale: { type: String }							// User's preferred locale
+		locale: { type: String },							// User's preferred locale
+		code: { type: String}								// Confirmation code if any
 	});
 
 	// summary:
 	//		getters/setters for user clients (user and admin)
 	['client', 'admin'].forEach(function (field) {
 		var role = (field === 'client' ? 'user' : 'admin'), self = this;
+		// list clients or clients where user is admin
 		UserSchema.virtual(field).get(function() {
 			// summary:
 			//		find all clients/admins of this user
@@ -57,11 +59,11 @@ define([
 			// return: Deferred
 			//		The deferred resolves to this user
 			var d = new Deferred(), self = this;
-			when(_verifyId(cid, Client), function (cid) {
-				Relation.find({ role: role, parent: cid, user: this._id }).exec(function (err, relation) {
+			when(Relation.verifyId(cid, Client), function (cid) {
+				Relation.findOne({ role: role, parent: cid, user: this._id }).exec(function (err, relation) {
 					if (err) return d.reject(err);
-					if (relation && relation.length) return d.resolve(self);
-					Relation.create({ role: role, parent: cid, user: self._id }).exec(function (err) {
+					if (relation) return d.resolve(self);
+					Relation.create({ role: role, parent: cid, user: self._id }, function (err) {
 						if (err) d.reject(err);
 						else d.resolve(self);
 					});
@@ -69,6 +71,15 @@ define([
 			}, d.reject);
 			return d.promise;
 		});
+		// check if user is admin or user of a client
+		UserSchema.methods['is'+field.slice(0, 1).toUpperCase()+field.slice(1)] = function(cid) {
+			var d = Deferred();
+			Relation.findOne({ role: role, parent: cid, user: this._id }).exec(function(err, relation) {
+				if (err) d.reject(err);
+				else d.resolve(!!relation);
+			});
+			return d.promise;
+		};
 	});
 
 	UserSchema.virtual('Client').get(function() {
@@ -87,20 +98,24 @@ define([
 		return d.promise;
 	});
 
-	UserSchema.virtual('Vendor').get(function() {
-		var d = new Deferred();
-		if (this.root) {
-			Client.find({role: {vendor: true}}, function (err, clients) {
-				if (err) d.reject(err);
-				else d.resolve(clients);
-			});
-		} else {
-			Relation.find({ role: 'user', user: this._id }).populate('parent', null, {role: {vendor: true}}).exec(function (err, relations) {
-				if (err) d.reject(err);
-				else d.resolve(relations.map(function (relation) { return relation.parent; }));
-			});
-		}
-		return d.promise;
+	// per role - Vendor, Supplier, Retailer
+	// retrieve clients of the type where user is registered
+	Client.roles.forEach(function(role) {
+		UserSchema.virtual(role.charAt(0).toUpperCase()+role.slice(1)).get(function() {
+			var d = new Deferred(), query = {role: {}}; query.role[role] = true;
+			if (this.root) {
+				Client.find(query, function (err, clients) {
+					if (err) d.reject(err);
+					else d.resolve(clients);
+				});
+			} else {
+				Relation.find({ user: this._id }).where('role')['in'](['user', 'admin']).populate('parent', null, query).exec(function (err, relations) {
+					if (err) d.reject(err);
+					else d.resolve(relations.map(function (relation) { return relation.parent; }));
+				});
+			}
+			return d.promise;
+		});
 	});
 
 	var _safe = [], _root = [];
@@ -116,7 +131,7 @@ define([
 		var obj = {}, i, key, sf = root ? _root : _safe;
 		for (i=0; i<sf.length; i++) {
 			key = sf[i];
-			if (raw[key]) obj[key] = raw[key];
+			if (raw[key] !== undefined) obj[key] = raw[key];
 		}
 		return obj;
 	};

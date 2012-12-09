@@ -3,13 +3,14 @@
 define([
 	"dojo/node!fs",
 	"dojo/node!path",
+	"server/node/utils",
 	"dojo/Deferred",
 	"dojo/promise/all",
 	"dojo/when",
 	"dojo/_base/lang",
 	"../auth/access",
 	"./error"
-], function(fs, path, Deferred, all, when, lang, Access, error) {
+], function(fs, path, utils, Deferred, all, when, lang, Access, error) {
 	var loader = function (app, root, prefix, hash, parent, d) {
 		prefix = prefix || ''; hash = hash || '';
 		d = d || new Deferred();
@@ -62,8 +63,10 @@ define([
 							//		Any other middlewares
 							// returns: Array|null
 							var validate = obj.validate || {},
-								params = (obj.required || []).concat(obj.optional || ['']),
+								params = (obj.required || []).concat(obj.optional || []),
 								processor = parent ? parent.slice(0) : [];
+							// empty validator is run for all handlers
+							params.unshift('');
 							params.forEach(function(param) {
 								if (validate[param]) processor.push(validate[param]);
 							});
@@ -78,9 +81,9 @@ define([
 										if (rest[m]) {
 											var obj = rest[m],
 												route = prefix + '/'+ name + _getParams(obj.required, obj.optional),
-												params = (obj.required || []).concat(obj.optional || ['']),
+												params = (obj.required || []).concat(obj.optional || []),
 												validators = _processValidators(obj, parent), handler = [];
-
+											params.unshift('');
 											if (validators) {
 												// handler shall validate on request
 												handler.push(function (req, res, next) {
@@ -109,9 +112,9 @@ define([
 											}
 											access.methods[m] = undefined;
 
-											if (obj.handler) handler.push(obj.handler);
+											if (obj.handler) handler.push(lang.hitch(rest, obj.handler));
 											if (handler.length) {
-												console.log(m.toUpperCase(), route);
+												utils.info('#bold['+m.toUpperCase()+'] '+route.replace(/:(\w+)/g, '#blue[:]#cyan[$1]').replace(/(\?|\*)/g, '#yellow[$1]'));
 												app[m](route, handler);
 											}
 										}
@@ -147,9 +150,14 @@ define([
 		return d.promise;
 	};
 
-	loader.extend = function (Model, restrict, req, res, next) {
+	loader.extend = function (Model, self, req, res, next) {
+
+		var restrict = self && self.restrict, select = self && self.select;
+		// if restricted with empty object or array - nothing to do. To get unrestricted pass null or false
+		if (restrict && (restrict.length === 0 || !Object.keys(restrict).length)) return res.send([]);
+
 		var d = new Deferred(),
-			query = req.query,
+			query = lang.mixin({}, req.query, self && self.query),
 			range = req.header('Range'),
 			sort = query.sort,
 			Query, limit, count, skip;
@@ -160,12 +168,13 @@ define([
 			}).join(' ');
 			delete query.sort;
 		}
-		Query = Model.find(query);
+		Query = Model.find(query, select);
 		if (restrict) {
-			if (restrict.length) Query = Query.where("id")['in'](restrict);
+			if (restrict.length) Query = Query.where("_id")['in'](restrict);
 			else {
 				Object.keys(restrict).forEach(function (key) {
-					Query = Query.where(key)['in'](restrict[key]);
+					var r = restrict[key];
+					Query = Query.where(key)['in'](r.length ? r : [r]);
 				});
 			}
 		}

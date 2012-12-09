@@ -26,7 +26,7 @@ define([
 		filter: function (obj) { return obj; },
 		ok: function (msg) { status(this, 'statusOk', { name: msg || '', message: this._message || '' }); },
 		error: function (error /* Object */) { status(this, 'statusError', this.filter(error)); },
-		warning: function (warning /* Object */) { status(this, 'statusWraning', this.filter(error)); },
+		warning: function (warning /* Object */) { status(this, 'statusWraning', this.filter(warning)); },
 		loader: function (start /* Boolean */) { status(this, start ? 'statusLoading' : '', { name:'', message:'' }); }
 	});
 });

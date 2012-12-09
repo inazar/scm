@@ -1,1 +1,0 @@
-define({ stores: ['/client'], query: { 'role.vendor': true } });

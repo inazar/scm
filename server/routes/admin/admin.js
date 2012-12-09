@@ -1,0 +1,1 @@
+define({ stores: ['/user'], query: {root: true} });

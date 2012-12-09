@@ -6,14 +6,13 @@ define(["dojo/node!express/lib/response", "app/config"], function(Response, conf
 	var errors = config.errors;
 
 	function register() {
-		for(var k in errors) {
-			(function (type) {
-				Response[type] = function (msg, info) {
-					msg = msg || type;
-					this.send(errors[type], { name: "Error", message: msg });
-				}
-			})(k);
+		function _register(type) {
+			Response[type] = function (msg, info) {
+				msg = msg || type;
+				this.send(errors[type], { name: "Error", message: msg });
+			};
 		}
+		for(var k in errors) _register(k);
 	}
 
 	var create = register.create = function (status, msg, name) {
@@ -24,13 +23,17 @@ define(["dojo/node!express/lib/response", "app/config"], function(Response, conf
 		return error;
 	};
 
-	for (var k in errors) {
-		(function (type) {
-			register[type] = function (msg) {
-				return create(type, msg, type);
-			}
-		})(k);
+	function _createError(type) {
+		register[type] = function (msg) {
+			return create(type, msg, type);
+		};
 	}
+	for (var k in errors) _createError(k);
+
+	Response.flash = function(status, message) {
+		this.req.session.flash = {status: status, message: message};
+		return this;
+	};
 
 	return register;
 });

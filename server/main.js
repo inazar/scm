@@ -30,6 +30,7 @@ define([
 	//		6) Set up static routes and favicon
 	//		7) Set up request logging (skip statics ???)
 	//		8) Set up sessions
+	//		9) Protect from CSRF attacks
 	//		10) Initialize passport
 	//		9) Initialize locals for template engine
 	//		11) Set up router for server applications
@@ -50,7 +51,7 @@ define([
 
 	// start server configuration
 	app.configure('production', function(){
-		app.use(express.staticCache());	 // memory cache layer for the static() middleware
+		app.use(express.staticCache());	// memory cache layer for the static() middleware
 	});
 
 	app.configure(function() {
@@ -87,8 +88,15 @@ define([
 			store: new SessionStore({
 				ttl: sessionConfig.ttl,
 				reap: sessionConfig.reap
-			})
+			}),
+			key: config.sid
 		}));
+		// 9) Protect from CSRF attacks
+		app.use(express.csrf());
+		app.use(function (req, res, next) {
+			res.cookie(config.csrf, req.session._csrf);
+			next();
+		});
 		// 10) Initialize passport
 		app.use(passport.initialize());
 		app.use(passport.session());
@@ -96,7 +104,7 @@ define([
 		app.use(function (req, res, next) {
 			var requested = req.headers["accept-language"] || '';
 			var _ref = requested.match(/[a-z]+/gi);
-			req.locale = (_ref[0] in config.locales) ? _ref[0] : config.defaultLocale;
+			req.locale = (_ref && _ref.length && (_ref[0] in config.locales)) ? _ref[0] : config.defaultLocale;
 			next();
 		});
 		// 9) Initialize locals for template engine
@@ -104,55 +112,59 @@ define([
 			res.locals({
 				locale: req.user && req.user.locale ? req.user.locale : req.locale ? req.locale.toLowerCase() : config.defaultLocale,
 				user: req.user ? req.user.get('_id') : null,
-				client: req.user && req.user.customer ? req.user.customer.get('_id') : null
+				client: req.user && req.user.customer ? req.user.customer.get('_id') : null,
+				flash: req.session.flash
 			});
+			delete req.session.flash;
 			next();
 		});
 		// 11) Set up router for server applications
 		app.use(app.router);
 		// 12) Set up authentication strategies
 		strategies(passport);
-		// 11) Set up routes for unathorized access
-		authRoutes(app, passport);
-		// 13) Set up access verification
-		["get", "put", "post", "delete"].forEach(function(m) {
-			app[m](config.urls.base+'*', function(req, res, next) {
-				if ((!req.isAuthenticated || !req.isAuthenticated())) {
-					if (req.xhr) res.Unauthorized();
-					else res.redirect(env.login);
-				} else next();
+		// 11) Set up routes for unathorized access, returns deferred which resolves to true if root is registered
+		authRoutes(app, passport).then(function(root) {
+			app.root = root;
+			// 13) Set up access verification
+			["get", "put", "post", "delete"].forEach(function(m) {
+				app[m](config.urls.base+'*', function(req, res, next) {
+					if ((!req.isAuthenticated || !req.isAuthenticated())) {
+						if (req.xhr) res.Unauthorized();
+						else res.redirect(env.login);
+					} else next();
+				});
 			});
-		});
-		// 14) Set up secure routes
-		restify(app, path.join(env.root, 'server', 'rest')).then(
-			function (accessTemplate) {
-				// 15) initialize user access handling
-				access.template = accessTemplate;
-				// 15) set up main page handler for client
-				app.get(config.urls.base, function (req, res, next) {
-					res.render('layout', {layout: false, body: ''});
-				});
-				// 15) Set up error handling for xhr requests
-				app.use(function(err, req, res, next) {
-					if (req.xhr) res.send(err.status ? err.status : 500, { name: err.name, message: err.message });
-					else next(err);
-				});
-				// 16) Set up error handling for page request
-				app.configure('development', function() {
-					app.use(express.errorHandler({
-						dumpExceptions: true,
-						showStack: true
-					}));
-				});
-				app.configure('production', function() {
-					app.use(express.errorHandler());
-					app.set('json spaces', 0);
-				});
-				// 17) Start server
-				app.listen(env.port, function() {
-					util.log("Express server listening on port "+env.port+" in "+app.get('env')+" mode");
-				});
-			}, function (err) { util.error("Error loading routes: "+err.message); }
-		);
+			// 14) Set up secure routes
+			restify(app, path.join(env.root, 'server', 'rest')).then(
+				function (accessTemplate) {
+					// 15) initialize user access handling
+					access.template = accessTemplate;
+					// 15) set up main page handler for client
+					app.get(config.urls.base, function (req, res, next) {
+						res.render('layout', {layout: false, body: '', csrf: req.session._csrf});
+					});
+					// 15) Set up error handling for xhr requests
+					app.use(function(err, req, res, next) {
+						if (req.xhr) res.send(err.status ? err.status : 500, { name: err.name, message: err.message });
+						else next(err);
+					});
+					// 16) Set up error handling for page request
+					app.configure('development', function() {
+						app.use(express.errorHandler({
+							dumpExceptions: true,
+							showStack: true
+						}));
+					});
+					app.configure('production', function() {
+						app.use(express.errorHandler());
+						app.set('json spaces', 0);
+					});
+					// 17) Start server
+					app.listen(env.port, function() {
+						util.log("Express server listening on port "+env.port+" in "+app.get('env')+" mode");
+					});
+				}, function (err) { util.error("Error loading routes: "+err.message); }
+			);
+		}, function(err) { util.error("Error checking root: "+err.message); });
 	});
 });

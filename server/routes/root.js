@@ -26,8 +26,8 @@ define([
 				for (i=0; i<roles.length; i++) {
 					role = roles[i];
 					if (r[role]) sections.push({
-						"name": role,
-						"hash": '/client/'+role,
+						"name": role+'s',
+						"hash": '/parent/'+role,
 						"children": true
 					});
 				}

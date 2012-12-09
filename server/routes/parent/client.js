@@ -1,0 +1,1 @@
+define({ stores: ['/client'] });

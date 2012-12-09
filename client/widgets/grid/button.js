@@ -14,7 +14,7 @@ define([
 		return declare.safeMixin(column, {
 			destroy: function(){
 				listeners.forEach(function(l){ l.remove(); });
-				column.button.destroyRecursive();
+				if (column.button) column.button.destroyRecursive();
 			},
 			renderCell: function(object, value, cell, options, header){
 				if (!o.hidden) {

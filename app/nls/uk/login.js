@@ -5,6 +5,30 @@ define({
 	login: "Війти",
 	confirm: "Ще раз",
 	register: "Зареєструвати",
-	forgotPassword: "Відновити пароль",
-	"Invalid email": "Некоректна email адреса"
+	reset: "Відновити пароль",
+	next: "Далі",
+	"Email sent": "Email відправлено",
+	"Registration failed": "Реєстрація невдала",
+	"Registration succeeded": "Реєстрація успішна",
+	"Password reset": "Пароль відновлено",
+	"Database error": "Помилка бази даних",
+	"Not found": "Не знайдено",
+	"Bad request": "Некоректний запит",
+	hint: {
+		email: {
+			invalidMessage: "Некоректна email адреса",
+			missingMessage: "Необхідно ввести email",
+			promptMessage: "Введіть email адресу"
+		},
+		password: {
+			invalidMessage: "Мінімум 5 символів",
+			missingMessage: "Необхідно ввести пароль",
+			promptMessage: "Введіть пароль"
+		},
+		confirm: {
+			invalidMessage: "Паролі не співпадають",
+			missingMessage: "Необхідно підтвердити пароль",
+			promptMessage: "Введіть пароль ще раз"
+		}
+	}
 });

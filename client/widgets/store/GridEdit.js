@@ -1,6 +1,7 @@
 // module:
 //		client/widgets/store/GridEdit
 define([
+	"app/ctrls/translate!grid",
 	"dojo/_base/declare",
 	"dojo/_base/lang",
 	"dojo/Stateful",
@@ -25,11 +26,12 @@ define([
 	"dijit/form/Button",
 	"dijit/layout/BorderContainer",
 	"dijit/layout/ContentPane"
-], function(declare, lang, Stateful, Deferred, when, on, aspect, topic, query, put, registry, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, template, unauthorized, OnDemandGrid, Selection, Keyboard, editor, button, Btn) {
+], function(__, declare, lang, Stateful, Deferred, when, on, aspect, topic, query, put, registry, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, template, unauthorized, OnDemandGrid, Selection, Keyboard, editor, button, Btn) {
 	var storeGrid = declare([OnDemandGrid, Selection, Keyboard], {
 		selectionMode: "single"
 	});
 	return declare([_WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin], {
+		unauthorized: __("You are not authorized to view this page"),
 		constructor: function () {
 			this._buttons = {};
 			this.templateString = template;
@@ -146,11 +148,13 @@ define([
 				return e;
 			}
 
+			var _base = { renderHeaderCell: function (node) { return document.createTextNode(__(this.label || this.field)); }};
+
 			// calculate columns
 			if (this.access["put"]) {
 				// declare grid with editors
 				for (i=0; i<col.length; i++) {
-					c = lang.mixin({}, col[i]);
+					c = lang.mixin({}, _base, col[i]);
 					if (c.editor) {
 						if (c.editOn && !c._editOn) {
 							c._editOn = c.editOn;
@@ -162,7 +166,7 @@ define([
 			} else {
 				// declare simple cells
 				for (i=0; i<col.length; i++) {
-					c = {};
+					c = lang.mixin({}, _base);
 					for (k=0; k<list.length; k++) {
 						if (col[i][list[k]] !== undefined) c[list[k]] = col[i][list[k]];
 					}
@@ -174,7 +178,7 @@ define([
 			if (this.access['delete']) {
 				_queryColumns.push(button({
 					label: '<div class="sprite16 deleteSprite"/>',
-					title: 'delete',
+					title: __('Delete'),
 					'class': 'controlButton',
 					field: 'controlButton',
 					sortable: false,
@@ -236,7 +240,7 @@ define([
 			function _addButton () {
 				if (!self._buttons['add']) {
 					self._buttons['add'] = new Btn({
-						title: "Add",
+						title: __("Add"),
 						'class': "controlButton",
 						label: '<div class="sprite16 addSprite"></div>',
 						onClick: function () {
@@ -254,7 +258,7 @@ define([
 			function _saveButton () {
 				if (!self._buttons['save']) {
 					self._buttons['save'] = new Btn({
-						title: "Save",
+						title: __("Save"),
 						disabled: true,
 						'class': "controlButton",
 						label: '<div class="sprite16 saveSprite"></div>',
@@ -346,8 +350,9 @@ define([
 							// now perform regular save as grid.dirty is cleaned up from new rows
 							when(promise, function() { grid.save(); }).then(function (saved) {
 								when(saved, function () {
-									grid.revert();
-									topic.publish("status/ok", "All changes saved");
+									setTimeout(function () { grid.revert(); }, 100);
+									topic.publish("status/ok", __("All changes saved"));
+									topic.publish("router/refresh");
 								});
 							});
 							
@@ -370,7 +375,7 @@ define([
 			function _revertButton () {
 				if (!self._buttons['revert']) {
 					self._buttons['revert'] = new Btn({
-						title: "Revert",
+						title: __("Revert"),
 						disabled: true,
 						'class': "controlButton",
 						label: '<div class="sprite16 refreshSprite"></div>',
@@ -420,7 +425,7 @@ define([
 				_newColumns.push(button({
 					grid: grid,
 					label: '<div class="sprite16 deleteSprite"/>',
-					title: 'delete',
+					title: __('Delete'),
 					'class': 'controlButton',
 					field: 'controlButton',
 					sortable: false,
@@ -454,7 +459,7 @@ define([
 			this.inherited(arguments);
 		},
 		uninitialize: function () {
-			this._grid.destroy();
+			if (this._grid) this._grid.destroy();
 			for (var b in this._buttons) {
 				this._buttons[b].destroyRecursive();
 			}

@@ -31,19 +31,6 @@ define([
 		// children: Array of Client
 	});
 
-	function _verifyId (id, Obj) {
-		var d = new Deferred();
-		if (id instanceof Obj) d.resolve(id._id);
-		else if (id instanceof ObjectId || typeof id === "string" || id instanceof String) {
-			Obj.findById(id).exec(function (err, obj) {
-				if (err) return d.reject(err);
-				if (!obj) d.reject(new Error("cannot relate to inexistent "+Obj.name));
-				else d.resolve(obj._id);
-			});
-		} else d.reject(new Error("relation requires "+Obj.name+" object or ObjectId"));
-		return d;
-	}
-
 	// summary:
 	//		getters/setters for client users and admins
 	['user', 'admin'].forEach(function (role) {
@@ -66,7 +53,7 @@ define([
 			// return: Deferred
 			//		The deferred resolves to this client
 			var d = new Deferred(), self = this;
-			when(_verifyId(uid, User), function (uid) {
+			when(Relation.verifyId(uid, User), function (uid) {
 				Relation.find({ role: role, parent: this._id, user: uid }).exec(function (err, relation) {
 					if (err) return d.reject(err);
 					if (relation && relation.length) return d.resolve(self);
@@ -156,7 +143,7 @@ define([
 			//		The deferred resolves to this client
 			var d = new Deferred(), self = this;
 			if (!this.role[roles[roles.indexOf(role) + 1]]) return d.reject(_error(this.name, "cannot have parent "+role));
-			when(_verifyId(cid, Client), function(cid) {
+			when(Relation.verifyId(cid, Client), function(cid) {
 				Relation.find({ role: role, parent: cid, child: this._id }).exec(function (err, relation) {
 					if (err) return d.reject(err);
 					if (relation && relation.length) return d.resolve(self);
@@ -199,7 +186,7 @@ define([
 			var d = new Deferred(), self = this;
 			var prole = roles[roles.indexOf(role) - 1];
 			if (!this.role[prole]) return d.reject(_error(this.name, "cannot have child "+role));
-			when(_verifyId(cid, Client), function (cid) {
+			when(Relation.verifyId(cid, Client), function (cid) {
 				Relation.find({ role: prole, parent: this._id, child: cid }).exec(function (err, relation) {
 					if (err) return d.reject(err);
 					if (relation && relation.length) return d.resolve(self);
@@ -235,6 +222,15 @@ define([
 		return roles.indexOf(role) >= 0;
 	};
 
+	ClientSchema.statics.childRole = function (role) {
+		var i = roles.indexOf(role);
+		return roles[i+1] || false;
+	};
+
+	ClientSchema.statics.lastRole = function (role) {
+		return role === roles[roles.length-1];
+	};
+
 	ClientSchema.methods.canCreate = function (role) {
 		var i = roles.indexOf(role);
 		if (i <= 0) return false;
@@ -243,7 +239,7 @@ define([
 
 	ClientSchema.methods.isAdmin = function (uid, callback) {
 		var d = new Deferred(), self = this;
-		when(_verifyId, function (uid) {
+		when(Relation.verifyId(uid, User), function (uid) {
 			Relation.findOne({ role: 'admin', parent: self._id, user: uid}).exec(function (err, relation) {
 				if (err) d.reject(err);
 				else d.resolve(!!relation);
@@ -269,106 +265,6 @@ define([
 			else d.resolve(client.secret === secret);
 		});
 		if (callback) when(d, function (match) { callback(null, match); }, callback);
-		return d.promise;
-	};
-
-	ClientSchema.methods.getClientPage = function (prefix, user) {
-		var d = new Deferred(), client = this;
-		when(access.get(prefix + this.id, user), function(access) {
-			d.resolve({
-				name: client.name,
-				hash: prefix + client.id,
-				access: access
-			});
-		}, d.reject);
-		return d.promise;
-	};
-
-	ClientSchema.methods.getAdminSection = function (prefix, users, user) {
-		// summary:
-		//		Create route for this client
-		// prefix: String
-		//		Route hash prefix
-		// users: Array
-		//		Users objects to include to routes
-		var d = new Deferred(), client = this, children = [];
-
-		// list client admins
-		var ud = new Deferred(), uds = [];
-		children.push(ud);
-
-		users.forEach(function(user) {
-			uds.push(access.get(prefix + '/' + client.id + '/users/' + user.id, user));
-		});
-
-		all(uds).then(function(access) {
-			var uchs = [];
-			users.forEach(function (user, i) {
-				uchs.push({
-					name: user.name + ' (' + user.email + ')',
-					hash: prefix + '/' + client.id + '/users/' + user.id,
-					access: access[i]
-				});
-			});
-			when(access.get(prefix + '/' + client.id + '/users'), function (access) {
-				ud.resolve({
-					name: 'users',
-					hash: prefix + '/' + client.id + 'users',
-					access: access,
-					children: uchs.length ? uchs : false
-				});
-			}, ud.reject);
-		}, ud.reject);
-
-		// if client is vendor, list suppliers
-		if (this.role && this.role.vendor) {
-			var vd = new Deferred(), vds = [];
-			children.push(vd);
-			this.vendor.forEach(function(supplier) {
-				vds.push(supplier.getClientPage(prefix + 'supplier/' + supplier.id + '/', user));
-			});
-			all(vds).then(function(suppliers) { 
-				when(access.get(prefix + '/supplier', user), function (access) {
-					vd.resolve({
-						name: 'supplier',
-						hash: prefix + 'supplier',
-						access: access,
-						children: suppliers.length ? suppliers : false
-					});
-				}, vd.reject);
-			}, vd.reject);
-		}
-
-		// if client is supplier, list retailers
-		if (this.role && this.role.supplier) {
-			var sd = new Deferred(), sds = [];
-			children.push(sd);
-			this.supplier.forEach(function(retailer) {
-				sds.push(retailer.getClientPage(prefix + 'retailer/' + retailer.id + '/', user));
-			});
-			all(sds).then(function(retailers) {
-				when(access.get(prefix + '/retailer', user), function (access) {
-					sd.resolve({
-						name: 'retailer',
-						hash: prefix + 'retailer',
-						access: access,
-						children: retailers.length ? retailers : false
-					});
-				}, sd.reject);
-			}, sd.reject);
-		}
-
-		all(children).then(function(chs) {
-			when(access.get(prefix + '/' + client.id, user), function (access) {
-				d.resolve({
-					name: client.name,
-					hash: prefix + '/' + client.id,
-					access: access,
-					children: chs.length ? chs : false
-				});
-			}, d.reject);
-		}, d.reject);
-
 		return d.promise;
 	};
 
