@@ -9,6 +9,10 @@ define([
 	//		extend JsonStore based on base store store with additional target parameter
 
 	return function (o, store) {
-		return new declare(function() { this.target = (o.pre || '') + (o.target ? o.target : store.target) + (o.post || ''); }, store)();
+		return new declare(function() {
+			this.target = (o.pre || '') + (o.target ? o.target : store.target) + (o.post || '');
+			if (o.columns) this.columns = o.columns;
+			if (o.pages) this.pages = o.pages;
+		}, store)();
 	};
 });

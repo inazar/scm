@@ -32,18 +32,21 @@ define([
 	});
 	return declare([_WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin], {
 		unauthorized: __("You are not authorized to view this page"),
+		templateString: template,
 		constructor: function () {
 			this._buttons = {};
-			this.templateString = template;
 		},
 		postscript: function () {
 			if (!this.authorized) this.templateString = unauthorized;
 			this.inherited(arguments);
 		},
 		startup: function() {
-			if (!this.authorized) return this.inherited(arguments);
-
 			var self = this;
+
+			if (!this.authorized) {
+				if (this.back) _backButton();
+				return this.inherited(arguments);
+			}
 
 			var _actions = {
 				"add": {},
@@ -148,7 +151,9 @@ define([
 				return e;
 			}
 
-			var _base = { renderHeaderCell: function (node) { return document.createTextNode(__(this.label || this.field)); }};
+			var _base = {
+					// renderHeaderCell: function (node) { return document.createTextNode(__(this.label || this.field)); }
+				};
 
 			// calculate columns
 			if (this.access["put"]) {
@@ -232,6 +237,24 @@ define([
 					grid.dirty[id] = _actions.add[id] = _actions.add[id] || {};
 				}
 			});
+
+			function _backButton () {
+				if (!self._buttons['back']) {
+					self._buttons['back'] = new Btn({
+						title: __("Back"),
+						'class': "controlButton",
+						label: '<div class="sprite16 backSprite"></div>',
+						onClick: function () {
+							this.emit('flip', {page: 'main'});
+						}
+					});
+					self._buttons['back'].startup();
+					self.buttons.addChild(self._buttons['back']);
+				}
+			}
+
+			// support back button for flip integration
+			if (this.back) _backButton();
 
 			// summary:
 			//		Place add button in control area
@@ -463,6 +486,7 @@ define([
 			for (var b in this._buttons) {
 				this._buttons[b].destroyRecursive();
 			}
+			this.inherited(arguments);
 		}
 	});
 });

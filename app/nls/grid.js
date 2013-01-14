@@ -6,7 +6,7 @@ define({
 		"Record reverted": "Record reverted",
 		"Add": "Add",
 		"Save": "Save",
-		"Refresh": "Refresh",
+		"Revert": "Revert",
 		"Delete": "Delete",
 
 		"Name": "Name"

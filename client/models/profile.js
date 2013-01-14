@@ -20,24 +20,7 @@ define([
 			},
 			{
 				field: 'email',
-				label: 'e-mail',
-				editor: ValidationTextBox,
-				editOn: 'dblclick',
-				editorArgs: {
-					invalidMessage: "Valid email required",
-					missingMessage: "email cannot be empty",
-					required: true,
-					validator: validate.isEmailAddress
-				}
-			},
-			{
-				field: 'blocked',
-				label: 'Blocked',
-				editor: CheckBox
-			},
-			{
-				field: 'failures',
-				label: 'Failures'
+				label: 'e-mail'
 			}
 		]
 	};

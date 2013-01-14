@@ -1,13 +1,14 @@
 define([
 	"dojo/node!connect-ensure-login",
 	"dojo/Deferred",
+	"dojo/when",
 	"server/auth/oauth2",
 	"server/config/env",
 	"server/node/error",
 	"server/node/utils",
 	"server/node/mail",
 	"server/classes/User"
-], function (login, Deferred, oauth2, env, error, utils, mail, User) {
+], function (login, Deferred, when, oauth2, env, error, utils, mail, User) {
 
 	// summary:
 	//		GET /login:
@@ -26,9 +27,10 @@ define([
 	//			- log current user out
 
 	return function (app, passport) {
+		var secure = env.dotcloud ? "https://" : "http://"
 		function ensureSecure (req, res, next) {
-			if (env.dotcloud && req.header["X-Forwarded-Port"] !== 443) {
-				res.redirect("http://" + env.host + req.url);
+			if (env.dotcloud && req.headers["x-forwarded-port"] != 443) {
+				res.redirect("https://" + env.host + req.url);
 			} else next();
 		}
 		function requestConfirmation (email, subj, code) {
@@ -55,12 +57,16 @@ define([
 					flash = "Password reset";
 					status = "ok";
 					break;
+				case "email":
+					flash = "Check your email";
+					status = "ok";
+					break;
 				default:
 					break;
 			}
 			if (flash) res.flash(status, flash);
-			if (post) res.send("http://" + env.host + env.login);
-			else res.redirect("http://" + env.host + env.login);
+			if (post) res.send(secure + env.host + env.login);
+			else res.redirect(secure + env.host + env.login);
 		}
 
 		// register confirm
@@ -112,18 +118,17 @@ define([
 						if (!parsed.password || parsed.password !== parsed.confirm) return res.BadRequest();
 						var success = user.secret ? "reset" : "success";
 						user.secret = parsed.password;
-						User.collection.update({_id: user.get('_id')}, {$unset: {code: true}});
-						user.save(function(err) {
-							toLogin(err ? "db" : success, res, true);
+						User.collection.update({_id: user.get('_id')}, { $unset: {code: true} }, function(err) {
+							if (err) return next(err);
+							user.save(function(err) { toLogin(err ? "db" : success, res, true); });
 						});
 					});
 				} else {
 					// normal login
 					passport.authenticate('local', function(err, user, info) {
 						if (err) return next(err);
-						if (!user) {
-							next(error.Unauthorized(info));
-						} else {
+						if (!user) return res.Unauthorized(info);
+						else {
 							req.logIn(user, function (err) {
 								if (err) return next(err);
 								if (req.session && req.session.returnTo && req.session.returnTo !== env.login) {
@@ -138,17 +143,32 @@ define([
 			} else {
 				// root does not exist - only email expected
 				if (!parsed || !parsed.email) return next(error.BadRequest());
-				User.findOneAndUpdate({
-					email: parsed.email
-				}, {
-					confirmed: false,
-					root: true,
-					code: utils.uid(5)
-				}, { upsert: true }, function(err, user) {
+				User.findOne({email: parsed.email}, function (err, user) {
 					if (err) return next(err);
-					app.root = true;
-					requestConfirmation(user.email, 'Confirm registration', user.code);
-					res.send("http://" + env.host + env.rootUrl);
+					var d = new Deferred();
+					if (user) {
+						user.root = true;
+						user.save(function(err) {
+							if (err) d.reject(err);
+							else d.resolve(user);
+						});
+					} else {
+						User.create({
+							email: parsed.email,
+							confirmed: false,
+							root: true,
+							code: utils.uid(5)
+						}, function(err, user) {
+							if (err) d.reject(err);
+							else d.resolve(user);
+						});
+					}
+					when(d, function(user) {
+						app.root = true;
+						requestConfirmation(user.email, 'Confirm registration', user.code);
+						toLogin("email", res, true);
+					}, next);
+
 				});
 			}
 		} ]);

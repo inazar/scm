@@ -5,12 +5,12 @@ define([
 	"app/config"
 ], function (declare, User, error, config) {
 	// module:
-	//		server/routes/user/locale
+	//		server/rest/user/locale
 	return {
 		"put": {
 			handler: function (req, res, next) {
 				var id = req.body && req.body.id, user = req.user;
-				if (!user) return next(error.Unauthorized());
+				if (!user) return res.Forbidden();
 				if (!id || !(id in config.locales)) return res.BadRequest();
 				user.locale = id;
 				user.save(function(err) {

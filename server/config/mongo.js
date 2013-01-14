@@ -13,7 +13,7 @@ define({
 
 	// db: String
 	//		The name of application database
-	db: 'scmdb',
+	db: process.env['SCM_DB'] || 'scmdb',
 
 	// port: Number
 	//		The port listened by database engine
@@ -21,13 +21,13 @@ define({
 
 	// host: String
 	//		host where database is listening
-	host: process.env['DOTCLOUD_DATA_MONGODB_HOST'] || 'localhost',
+	host: process.env['DOTCLOUD_DB_MONGODB_HOST'] || 'localhost',
 
 	// login: String
 	//		database login
-	login: process.env['DOTCLOUD_DATA_MONGODB_LOGIN'] || 'scm',
+	login: process.env['SCM_DB_LOGIN'] || 'scm',
 
 	// password: String
 	//		database password
-	password: process.env['DOTCLOUD_DATA_MONGODB_PASSWORD'] || 'Pa$$W0Rd'
+	password: process.env['SCM_DB_PASSWORD'] || 'Pa$$W0Rd'
 });

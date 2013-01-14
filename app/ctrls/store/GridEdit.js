@@ -17,8 +17,10 @@ define([
 			//			access: access object for the editor
 			//			query: additional query parameters
 
+			lang.mixin(this, params);
 			// This object works only with application models
 			this.access = params.access || {};
+			this.back = params.back || false;
 			this.authorized = this.access["get"];
 			if (!this.query) this.query = {};
 		},

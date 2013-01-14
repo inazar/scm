@@ -9,7 +9,6 @@
             email: <%- JSON.stringify(email) %>,<% } %><% if (typeof code !== "undefined") { %>
             code: <%- JSON.stringify(code) %>,<% } %><% if (typeof flash !== "undefined") { %>
             flash: <%- JSON.stringify(flash) %>,<% } %>
-            csrf: <% if (typeof csrf !== "undefined") { %><%- JSON.stringify(csrf) %><% } else { %>null<% } %>,
             locale: <% if (typeof locale !== "undefined") { %><%- JSON.stringify(locale) %><% } else { %>'ru-ru'<% } %>,
             user:  <% if (typeof user !== "undefined") { %><%- JSON.stringify(user) %><% } else { %>null<% } %>
         };

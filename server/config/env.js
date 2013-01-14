@@ -17,11 +17,11 @@ define(["dojo/node!path", "app/config"], function(path, config) {
 
 		// host: String
 		//		Host listened by application
-		host: env['DOTCLOUD_NODEJS_HTTP_HOST'] || 'localhost:3050',
+		host: env['DOTCLOUD_WWW_HTTP_HOST'] || 'localhost:3050',
 
 		// port: Number
 		//		Port listened by application
-		port: env['PORT_WWW'] || 3050,
+		port: env['PORT_NODEJS'] || 3050,
 
 		// rootUrl: String
 		//		Root URL

@@ -9,7 +9,7 @@ define([
 	// summary:
 	//		define JsonStore for user/admin based on user store
 
-	var model = extend({pre: '/admin'}, User);
-	lang.mixin({query: {root: {$not: true}}}, model, user);
+	var model = extend(lang.mixin({pre: '/admin'}, user), User);
+	lang.mixin({query: {root: {$not: true}}}, model);
 	return model;
 });

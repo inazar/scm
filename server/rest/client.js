@@ -10,7 +10,7 @@ define([
 	"dojo/promise/all"
 ], function (lang, utils, restify, User, Client, Relation, Deferred, when, all) {
 	// module:
-	//		server/routes/client
+	//		server/rest/client
 	
 	function validator (method, child, params, user, log) {
 		// summary:
@@ -29,16 +29,16 @@ define([
 		//	params: Object Contains request params - role, pid, cid?
 		//	user: User Currently logged in user
 
-		// root can do what he wants
-		if (user.root) return utils.validate('client', method, params, user, true, log);
-		
-		
-		if (!params.pid ||										// user is not root so pid must be provided
+		if (!params.pid ||										// pid must be provided
 			!params.role ||										// role must be provided
 			!Client.isRole(params.role) ||						// role value must be valid
 			(!params.cid && Client.lastRole(params.role)) ||	// last role has no children
 			(child && !params.cid)								// child is true and no cid provided
 			) return utils.validate('client', method, params, user, false, log); // invalid!
+
+		// root can do what he wants
+		if (user.root) return utils.validate('client', method, params, user, true, log);
+
 		// now user is not root and pid, role are provided
 		var d = new Deferred();
 		// check if user is admin or parent
@@ -98,10 +98,9 @@ define([
 				Client.create(obj, function(err, client) {
 					if (err) return next(err);
 					// set relation user and parent to client in "transaction way"
-					Relation.create([
-						{role: req.params.role || "vendor", parent: params.pid, child: client.id},
-						{role: "admin", parent: client.id, user: user.id}
-					], function(err) {
+					var relations = [{role: "admin", parent: client.id, user: user.id}];
+					if (params.pid) relations.push({role: req.params.role || "vendor", parent: params.pid, child: client.id});
+					Relation.create(relations, function(err) {
 						if (err) next(err);
 						else res.send(client);
 					});

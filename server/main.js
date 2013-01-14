@@ -2,6 +2,7 @@ define([
 	"dojo/_base/declare",
 	"dojo/_base/lang",
 	"dojo/node!util",
+	"dojo/node!child_process",
 	"dojo/node!path",
 	"dojo/node!express",
 	"dojo/node!ejs",
@@ -16,7 +17,7 @@ define([
 	"./auth/access",
 	"./config/env",
 	"app/config"
-], function(declare, lang, util, path, express, ejs, registerErrorHandlers, SessionStore, passport, strategies, authRoutes, login, sessionConfig, restify, access, env, config) {
+], function(declare, lang, util, child, path, express, ejs, registerErrorHandlers, SessionStore, passport, strategies, authRoutes, login, sessionConfig, restify, access, env, config) {
 	// module:
 	//		server/node/app
 
@@ -163,8 +164,14 @@ define([
 					app.listen(env.port, function() {
 						util.log("Express server listening on port "+env.port+" in "+app.get('env')+" mode");
 					});
-				}, function (err) { util.error("Error loading routes: "+err.message); }
+				}, function (err) { util.error(err.message); process.exit(1); }
 			);
-		}, function(err) { util.error("Error checking root: "+err.message); });
+		}, function(err) {
+			util.error(err.message);
+			var init = child.fork('server/initdb.js');
+			init.on('exit', function(code) {
+				process.exit(code);
+			});
+		});
 	});
 });

@@ -271,6 +271,7 @@ html, body {
 .sprite16.wrenchSprite{ background-position: -16px -1026px; } 
 .sprite16.zoom_inSprite{ background-position: -16px -1044px; } 
 .sprite16.zoom_outSprite{ background-position: -16px -1062px; } 
+.sprite16.backSprite{ background-position: -16px -1080px; } 
 
 .dijitDisabled .sprite16 {
 	background-position-x: 0;

@@ -1,8 +1,9 @@
 define([
 	"app/main",
 	"dojo/node!util",
-	"dojo/when"
-], function (app, util, when) {
+	"dojo/when",
+	"server/classes/Log"
+], function (app, util, when, Log) {
 	return {
 		ansicodes: {
 			'reset': '\033[0m',
@@ -82,6 +83,17 @@ define([
 				});
 			}
 			return result;
+		},
+		access: function (rowId, user, model, action, params, body) {
+			Log.write({
+				user: user.id,
+				model: model,
+				object: rowId,
+				action: action,
+				params: params,
+				body: body
+			});
+			return row;
 		}
 	};
 });

@@ -18,7 +18,11 @@ define({
 		"users": "Users",
 		"vendors": "Vendors",
 		"suppliers": "Suppliers",
-		"retailers": "Retailers"
+		"retailers": "Retailers",
+
+		"products": "Products",
+		"orders": "Purchase orders",
+		"supplies": "Sales orders"
 	},
 
 	'ru': true,

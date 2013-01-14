@@ -11,6 +11,7 @@ define({
 	"Email sent": "Email отправлен",
 	"Registration failed": "Регистрация неудачна",
 	"Registration succeeded": "Регистрация успешна",
+	"Check your email": "Проверьте свою почту",
 	"Password reset": "Пароль восстановлен",
 	"Database error": "Ошибка базы данных",
 	"Not found": "Не найдено",

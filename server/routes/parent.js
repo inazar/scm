@@ -17,12 +17,20 @@ define([
 			if (role && Client.isRole(role)) {
 				if (pid) {
 					var prefix = "/parent/"+role+"/"+pid,
-						permissions = {user: access.get(prefix+"/user", user)};
-					if (!Client.lastRole(role)) permissions.client = access.get(prefix+"/client", user);
+						permissions = {
+							user: access.get(prefix+"/user", user),
+							client: access.get(prefix+"/client", user),
+							product: access.get(prefix+"/product", user),
+							order: access.get(prefix+"/order", user),
+							supply: access.get(prefix+"/supply", user)
+						};
 					all(permissions).then(function (a) {
 						var sections = [];
-						if (a.user["get"]) sections.push({ "name": "users", "hash": prefix+"/user", "access": a.user });
-						if (a.client && a.client["get"]) sections.push({ "name": Client.childRole(role)+"s", "hash": prefix+"/client", "access": a.client });
+						if (a.user["get"]) sections.push({ name: "users", hash: prefix+"/user", access: a.user });
+						if (a.client && a.client["get"]) sections.push({ name: Client.childRole(role)+"s", hash: prefix+"/client", access: a.client });
+						if (a.product && a.product["get"]) sections.push({ name: "products", hash: prefix+"/product", access: a.product });
+						if (a.order && a.order["get"]) sections.push({ name: "orders", hash: prefix+"/order", access: a.order });
+						if (a.supply && a.supply["get"]) sections.push({ name: "supplies", hash: prefix+"/supply", access: a.supply });
 						d.resolve(sections);
 					}, d.reject);
 				} else {

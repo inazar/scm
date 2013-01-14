@@ -81,6 +81,8 @@ define({
 		ServiceUnavailable: 503
 	},
 	routes: {
+		'/parent/:role/:pid/product/:prid': 'parent/product',
+		'/parent/:role/:pid/product': 'parent/product',
 		'/parent/:role/:pid/client/:cid': 'parent/client',
 		'/parent/:role/:pid/client': 'parent/client',
 		'/parent/:role/:pid/user/:uid': 'parent/user',
@@ -88,6 +90,8 @@ define({
 		'/parent/:role/:pid': 'parent',
 		'/parent/:role': 'parent',
 		'/admin/client': 'admin/client',
+		'/admin/user/:uid/access': 'admin/user/access',
+		'/admin/user/:uid/client': 'admin/user/client',
 		'/admin/user': 'admin/user',
 		'/admin/admin': 'admin/admin',
 		'/admin': 'admin',

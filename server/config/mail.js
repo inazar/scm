@@ -2,8 +2,8 @@
 //		server/config/mail
 
 define({
-	method: 'dev', // can be smtp or dev
-	from: "SCM server",
+	method: process.env['DOTCLOUD_PROJECT'] ? 'smtp' : 'dev', // can be smtp or dev
+	from: "SCM server <nivanenko@gmail.com>",
 	conf: {
 		host: "localhost"
 	}

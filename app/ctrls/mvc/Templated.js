@@ -4,7 +4,7 @@ define([
 	"app/ctrls/translate!",
 	"dojo/_base/declare",
 	// template
-	"dojo/text!client/views/unathorized.html",
+	"dojo/text!client/views/Unauthorized.html",
 	// declare templated widget
 	"dojox/mvc/Templated"
 ], function (__, declare, template, Templated) {
@@ -17,9 +17,7 @@ define([
 			edit: null,
 			create: null
 		},
-		unathorized: {
-			message: __("You are not authorized to view this page")
-		},
+		unauthorized: __("You are not authorized to view this page"),
 		postscript: function () {
 			var self = this;
 			function _getTemplate(name) { return self.templates[name] ? self.templates[name] : self.templates.unathorized; }

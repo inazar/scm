@@ -2,7 +2,7 @@ define([
 	"dojo/when"
 ], function (when) {
 	// module:
-	//		server/routes/routes
+	//		server/rest/routes
 	return {
 		skip: true,
 		"get": {

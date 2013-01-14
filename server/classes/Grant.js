@@ -1,9 +1,9 @@
 // module:
 //		server/classes/Grant
 define([
-	"../node/mongo",
-	"../node/mongoose!Schema",
-	"../node/mongoose!ObjectId"
+	"server/node/mongo",
+	"server/node/mongoose!Schema",
+	"server/node/mongoose!ObjectId"
 ], function (mongo, Schema, ObjectId) {
 
 	// summary:

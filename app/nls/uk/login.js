@@ -10,6 +10,7 @@ define({
 	"Email sent": "Email відправлено",
 	"Registration failed": "Реєстрація невдала",
 	"Registration succeeded": "Реєстрація успішна",
+	"Check your email": "Перевірте свою пошту",
 	"Password reset": "Пароль відновлено",
 	"Database error": "Помилка бази даних",
 	"Not found": "Не знайдено",

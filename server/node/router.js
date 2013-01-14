@@ -24,11 +24,13 @@ define([
 			eventObj = { path: path, params: params, user: user },
 			d = new Deferred(), promises = [];
 
-		queue.forEach(function (cback) { promises.push(cback(eventObj)); });
+		if (queue.length) {
+			queue.forEach(function (cback) { promises.push(cback(eventObj)); });
 
-		all(promises).then(function(valids) {
-			d.resolve(valids.every(function(valid) { return valid; }));
-		}, d.reject);
+			all(promises).then(function(valids) {
+				d.resolve(valids.every(function(valid) { return valid; }));
+			}, d.reject);
+		} else d.resolve(false); // resolve to false if no validator given
 
 		return d.promise;
 	}

@@ -1,16 +1,16 @@
 // module:
 //		server/classes/Client
 define([
-	"../node/mongo",
-	"../node/mongoose!Schema",
-	"../node/mongoose!ObjectId",
-	"../node/mongoose!Mixed",
-	"./User",
-	"./Relation",
+	"server/node/mongo",
+	"server/node/mongoose!Schema",
+	"server/node/mongoose!ObjectId",
+	"server/node/mongoose!Mixed",
+	"server/classes/User",
+	"server/classes/Relation",
 	"dojo/Deferred",
 	"dojo/when",
 	"dojo/promise/all",
-	"../auth/access"
+	"server/auth/access"
 ], function (mongo, Schema, ObjectId, Mixed, User, Relation, Deferred, when, all, access) {
 
 	// summary:

@@ -11,6 +11,7 @@ define({
 		"Email sent": "Email sent",
 		"Registration failed": "Registration failed",
 		"Registration succeeded": "Registration succeeded",
+		"Check your email": "Check your email",
 		"Password reset": "Password reset",
 		"Database error": "Database error",
 		"Not found": "Not found",

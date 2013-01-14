@@ -11,7 +11,7 @@ define([
 	"server/node/mail"
 ], function (lang, utils, restify, User, Client, Relation, Deferred, when, env, mail) {
 	// module:
-	//		server/routes/user
+	//		server/rest/user
 
 	function validator (method, params, user, log) {
 		// summary:
@@ -89,10 +89,20 @@ define([
 				User.findOne({email: obj.email}, function (err, user) {
 					if (err) return next(err);
 					if (user) {
-						when(Relation.relate("user", pid, user), function() {
-							if (user.get("code")) _sendMail(user);
-							res.send(user);
-						}, next);
+						if (pid) {
+							// add to another parent
+							when(Relation.relate("user", pid, user), function() {
+								if (user.get("code")) _sendMail(user);
+								res.send(user);
+							}, next);
+						} else {
+							// only root can reach here
+							user.root = true;
+							user.save(function(err) {
+								if (err) return next(err);
+								else res.send(user);
+							});
+						}
 					} else {
 						obj.code = utils.uid(5);
 						User.create(obj, function(err, user) {

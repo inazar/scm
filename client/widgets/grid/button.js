@@ -10,8 +10,11 @@ define([
 	// add advice for cleaning up widgets in this column
 
 	return function (column) {
-		var o = lang.mixin({}, column);
+		var o = lang.mixin({
+			'class': 'controlButton'
+		}, column);
 		return declare.safeMixin(column, {
+			field: 'controlButton',
 			destroy: function(){
 				listeners.forEach(function(l){ l.remove(); });
 				if (column.button) column.button.destroyRecursive();

@@ -21,10 +21,12 @@ define([
 			//			rowid: The id of row to edit
 			//			query: additional query parameters
 
+			lang.mixin(this, params);
 			// This object works only with application models
 			if (!this.store && !params.store) throw new Error("StoreEdit requires application model to work with");
 			this.params = params.params || null;
 			this.access = params.access || {};
+			this.back = params.back || false;
 			if (!this.query) this.query = {};
 			this.idParam = null;
 			this.control = null;

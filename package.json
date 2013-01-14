@@ -3,11 +3,14 @@
 	"description": "Supply chain management for eCommerce",
 	"author": "Nazar Ivanenko <nivanenko@gmail.com>",
 	"version": "0.0.1",
+	"scripts": {
+		"start" : "node lib/dojo/dojo.js load=app/main.js"
+	},
 	"dependencies": {
 		"express": "3.x.x",
 		"ejs": "",
 		"mongoose": "3.x.x",
-		"mail": "",
+		"email": "0.2.x",
 		"oauth2orize": "0.x.x",
 		"passport": "~0.1.12",
 		"passport-local": "0.1.x",

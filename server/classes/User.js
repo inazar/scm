@@ -1,18 +1,19 @@
 // module:
 //		server/classes/User
 define([
-	"../node/mongo",
-	"../node/mongoose!Schema",
-	"../node/mongoose!ObjectId",
-	"../config/env",
-	"./Client",
-	"./Relation",
+	"server/node/mongo",
+	"server/node/mongoose!Schema",
+	"server/node/mongoose!ObjectId",
+	"server/config/env",
+	"server/classes/Client",
+	"server/classes/User/Access",
+	"server/classes/Relation",
 	"dojo/Deferred",
 	"dojo/when",
 	"dojo/promise/all",
-	"../auth/access",
-	"../node/error"
-], function (mongo, Schema, ObjectId, env, Client, Relation, Deferred, when, all, access, error) {
+	"server/auth/access",
+	"server/node/error"
+], function (mongo, Schema, ObjectId, env, Client, Access, Relation, Deferred, when, all, access, error) {
 
 	// summary:
 	//		User database object
@@ -181,6 +182,28 @@ define([
 		require(['server/routes/'+router.map('/' + hash)], function (route) {
 			if (!route) d.reject(error.BadRequest("Route not found"));
 			else when(route.children(user, router.params('/' + hash)), d.resolve, d.reject);
+		});
+		return d.promise;
+	};
+
+	UserSchema.methods.access = function(cid, key, method) {
+		// summary:
+		//		Retrieve user access record
+		// cid:
+		//		Client id
+		// key: String?
+		//		The key of access object to retrieve
+		// method: String?
+		//		If key is provided method can be used to retrieve particular method
+		var d = new Deferred(), res;
+		Access.findOne({client: cid, user: this.id}, function(err, a) {
+			if (err) d.reject(err);
+			else {
+				res = (a ? a : new Access()).access;
+				if (key) res = res[key] || {};
+				if (method) res = res[method] || false;
+				d.resolve(res);
+			}
 		});
 		return d.promise;
 	};

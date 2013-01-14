@@ -94,24 +94,6 @@ var profile = {
 				'xstyle/css!../css/style.css'
 			]
 		},
-		'app/handlers/register': {
-			dependencies: [
-				"app/config",
-				"app/ctrls/translate",
-				"dojo/has",
-				"dojo/domReady",
-				"dojo/i18n",
-				"dojo/_base/config",
-				"dijit/_WidgetBase",
-				"dijit/_TemplatedMixin",
-				"dijit/_WidgetsInTemplateMixin",
-				"dijit/form/Form",
-				"dijit/form/ValidationTextBox",
-				"dijit/form/MappedTextBox",
-				"dijit/form/Button",
-				'xstyle/css!../css/style.css'
-			]
-		},
 		'client/main': {
 			dependencies: [
 				"app/config",

@@ -23,19 +23,22 @@ define([
 	//		Manage user profile
 	return declare([Templated], {
 		unauthorized: __("You are not authorized to view this page"),
+		templateString: template,
 		constructor: function () {
 			this._buttons = {};
 			this._widgets = {};
-			this.templateString = template;
 		},
 		postscript: function () {
 			if (!this.authorized) this.templateString = unauthorized;
 			this.inherited(arguments);
 		},
 		startup: function () {
-			if (!this.authorized) return this.inherited(arguments);
-
 			var self = this, args = arguments;
+
+			if (!this.authorized) {
+				if (this.back) _backButton();
+				return this.inherited(arguments);
+			}
 
 			// run trough the fields definitions and place each field in the table potentially with editor
 			var html = '<table>';
@@ -54,6 +57,24 @@ define([
 				container._containedWidgets.push(widget);
 				self._widgets[field.field] = widget;
 			});
+
+			function _backButton () {
+				if (!self._buttons['back']) {
+					self._buttons['back'] = new Btn({
+						title: __("Back"),
+						'class': "controlButton",
+						label: '<div class="sprite16 backSprite"></div>',
+						onClick: function () {
+							this.emit('flip', {page: 'main'});
+						}
+					});
+					self._buttons['back'].startup();
+					self.buttons.addChild(self._buttons['back']);
+				}
+			}
+
+			// support back button for flip integration
+			if (this.back) _backButton();
 
 			function _saveButton () {
 				if (!self._buttons['save']) {

@@ -3,7 +3,7 @@ define([
 	"server/classes/User"
 ], function (declare, User) {
 	// module:
-	//		server/routes/user/clients
+	//		server/rest/user/clients
 	return {
 		"get": {
 			handler: function (reg, res, next) {
@@ -29,12 +29,6 @@ define([
 					console.log("user/customers validate", params.cid);
 					return true;
 				}
-			}
-		},
-		"post": {
-			handler: function (reg, res, next) {
-				console.log("user/customers post");
-				next();
 			}
 		},
 		"delete": {

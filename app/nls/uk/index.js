@@ -17,5 +17,9 @@ define({
 	"users": "Користувачі",
 	"vendors": "Виробники",
 	"suppliers": "Постачальники",
-	"retailers": "Продавці"
+	"retailers": "Продавці",
+
+	"products": "Продукти",
+	"orders": "Закупки",
+	"supplies": "Продажі"
 });
